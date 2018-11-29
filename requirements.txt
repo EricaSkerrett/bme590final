@@ -1,3 +1,11 @@
 numpy
 pytest
 pytest-pep8
+ipython
+sphinx
+pytest-cov
+requests
+flask
+pymodm
+matplotlib
+scikit-image

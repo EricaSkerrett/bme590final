@@ -127,22 +127,27 @@ def validate_image_processed_upload(r):
     """ Validates user inputs for posts to to /image/processed/upload
 
     Args:
-        r: dictionary containing user_email and processed_images keys
+        r: dictionary containing user_email, processed_images, and
+           process_types keys
 
     Returns:
          AttributeError: when r does not contain required keys
          TypeError: when user_email is not a valid email, when
-                    processed_images is not a string
+                    processed_images is not a string, when process_types
+                    is not a specified processing type
 
     """
-    if all(k in r for k in ("user_email", "processed_images")):
+    if all(k in r for k in ("user_email", "processed_images", "process_types")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
         elif type(r["processed_images"]) is not str:
             raise TypeError("processed_images must be a base64 type string.")
+        elif r["process_types"] is not "Histogram Equalization" or "\
+        Contrast Stretching" or "Log Compression" or "Reverse Video":
+            raise TypeError("process_types must be one of the 4 specified.")
     else:
-        raise AttributeError("Post must be dict with user_email and"
-                             "processed_images keys.")
+        raise AttributeError("Post must be dict with user_email, "
+                             "processed_images, and process_types keys.")
 
 
 @app.route("/image/processed/upload", methods=["POST"])
@@ -159,12 +164,12 @@ def image_processed_upload():
     """
     r = request.get_json()
     validate_image_processed_upload(r)
-    # process_type = use information from GET request to determine
+    process_type = r["process_types"]
     process_time = datetime.now()
     image = Image.objects.raw({"_id": r["user_email"]}).first()
     image.processed_images.append(r["processed_images"])
     image.process_times.append(process_time)
-    # image.process_types.append(process_type)
+    image.process_types.append(process_type)
     # update user_metrics dict (find process type key and add 1)
     image.save()
     return "Uploaded", 200

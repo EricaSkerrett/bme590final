@@ -8,7 +8,6 @@ from matplotlib import pyplot as plt
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
-app.run(host="127.0.0.1")
 
 
 class Image(MongoModel):
@@ -212,3 +211,7 @@ def get_uploaded_images(user_email):
     # should allow for iteration through list of uploaded images
     # and image_formats so that all uploaded images can be viewed
     view_b64_image(image_format, uploaded_images)
+
+
+if __name__ == "__main__":
+    app.run(host="127.0.0.1")

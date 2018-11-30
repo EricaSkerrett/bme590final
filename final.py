@@ -137,7 +137,8 @@ def validate_image_processed_upload(r):
                     is not a specified processing type
 
     """
-    if all(k in r for k in ("user_email", "processed_images", "process_types")):
+    if all(k in r for k in ("user_email", "processed_images",
+                            "process_types")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
         elif type(r["processed_images"]) is not str:

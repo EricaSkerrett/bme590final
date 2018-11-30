@@ -14,6 +14,7 @@ app.run(host="127.0.0.1")
 class Image(MongoModel):
     user_email = fields.EmailField(primary_key=True)
     uploaded_images = fields.ListField(field=fields.CharField())
+    image_formats = fields.ListField(field=fields.CharField())
     upload_times = fields.ListField(field=fields.DateTimeField())
     image_size = fields.ListField()
     processed_images = fields.ListField(field=fields.CharField())
@@ -42,7 +43,7 @@ def validate_create_user(r):
 
 @app.route("/image/user", methods=["POST"])
 def create_user():
-    """ POSTS a new image processor user (identified by email)to database
+    """ POSTS a new image processor user (identified by email) to database
 
     Returns:
         200 status after posting has occurred
@@ -101,7 +102,7 @@ def image_upload():
     """ POSTs user-uploaded image to database
 
     Posts user-uploaded image as an encoded base64 string as well as image
-    upload time and image size to database under the user's email
+    upload time, format, and size to database under the user's email
 
     Returns:
         200 status after the posting has occurred
@@ -110,12 +111,14 @@ def image_upload():
     r = request.get_json()
     validate_image_upload(r)
     base64string = image_encoder(r["uploaded_images"])
-    # image_size = call on a function to find image size here
+    # image_size = call on a function to find image size
+    # image_format = call on a function to extract image format
     upload_time = datetime.now()
     image = Image.objects.raw({"_id": r["user_email"]}).first()
     image.uploaded_images.append(base64string)
     image.upload_times.append(upload_time)
     # image.image_size.append(image_size)
+    # image.image_formats.append(image_format)
     image.save()
     return "Uploaded", 200
 
@@ -165,3 +168,41 @@ def image_processed_upload():
     # update user_metrics dict (find process type key and add 1)
     image.save()
     return "Uploaded", 200
+
+
+def view_b64_image(image_format, base64_string):
+    """ Decodes and shows base64 strings as images
+
+    Args:
+        image_format: type of file image was before encoding
+        base64_string: encoded string of base64 bytes
+
+    Returns:
+        Plot of decoded image
+
+    """
+    image_bytes = base64.b64decode(base64_string)
+    image_buf = io.BytesIO(image_bytes)
+    i = mpimg.imread(image_buf, format=image_format)
+    plt.imshow(i, interpolation='nearest')
+    plt.show()
+
+
+@app.route("/image/upload/<user_email>", methods=["GET"])
+def get_uploaded_images(user_email):
+    """ Retrieves and shows all uploaded images for specified user
+
+    Args:
+        user_email: email of user that has the desired uploaded images
+
+    Returns:
+        Plots of the images the specified user has uploaded
+
+    """
+    image = Image.objects.raw({"_id": user_email}).first()
+    uploaded_images = image.uploaded_images
+    image_format = image.image_formats
+    # note that this doesn't allow for viewing multiple images:
+    # should allow for iteration through list of uploaded images
+    # and image_formats so that all uploaded images can be viewed
+    view_b64_image(image_format, uploaded_images)

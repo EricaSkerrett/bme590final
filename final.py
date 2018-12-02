@@ -15,10 +15,10 @@ app = Flask(__name__)
 
 class ImageDB(MongoModel):
     user_email = fields.EmailField(primary_key=True)
-    uploaded_images = fields.ListField(field=fields.CharField())
-    image_formats = fields.ListField(field=fields.CharField())
+    uploaded_images = fields.ListField(field=fields.DictField())
+    image_formats = fields.ListField(field=fields.DictField())
     upload_times = fields.ListField(field=fields.DateTimeField())
-    image_size = fields.ListField()
+    image_size = fields.ListField(field=fields.DictField())
     processed_images = fields.ListField(field=fields.CharField())
     process_types = fields.ListField(field=fields.CharField())
     process_times = fields.ListField(field=fields.DateTimeField())

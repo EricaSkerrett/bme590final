@@ -97,8 +97,8 @@ def image_encoder(file_list):
         if file.endswith('.zip'):
             image_names = unzip_folder(file)
             file_list.remove(file)
-        file_list.append(image_names)
-    for image in image_names:
+            file_list.append(image_names)
+    for image in file_list:
         with open(image, "rb") as image_file:
             base64_string = base64.b64encode(image_file.read())
             base64_strings.append(base64_string)
@@ -148,7 +148,7 @@ def image_upload():
 
 
 def validate_image_processed_upload(r):
-    """ Valbdates user inputs for posts to to /image/processed/upload
+    """ Validates user inputs for posts to to /image/processed/upload
 
     Args:
         r: dictionary containing user_email, processed_images, and

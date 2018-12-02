@@ -87,12 +87,12 @@ def image_encoder(file_list):
         zip folder of images to be encoded
 
     Returns:
-        base64_strings: list of images encoded in a base64 string
+        image_dict: dictionary of images and their encoded base64 string
 
     """
     # we may need to pair each base64 string to the name of the original file
     # we may also want to split this into 2 functions depending on unit testing
-    base64_strings = []
+    image_dict = {}
     for file in file_list:
         if file.endswith('.zip'):
             image_names = unzip_folder(file)
@@ -101,8 +101,8 @@ def image_encoder(file_list):
     for image in file_list:
         with open(image, "rb") as image_file:
             base64_string = base64.b64encode(image_file.read())
-            base64_strings.append(base64_string)
-    return base64_strings
+            image_dict.update({image: base64_string})
+    return image_dict
 
 
 def unzip_folder(zipped_folder):
@@ -134,12 +134,12 @@ def image_upload():
     """
     r = request.get_json()
     validate_image_upload(r)
-    base64strings = image_encoder(r["uploaded_images"])
+    image_dict = image_encoder(r["uploaded_images"])
     # image_size = call on a function to find image size
     # image_format = call on a function to extract image format
     upload_time = datetime.now()
     image = Image.objects.raw({"_id": r["user_email"]}).first()
-    image.uploaded_images.append(base64strings)
+    image.uploaded_images.append(image_dict)
     image.upload_times.append(upload_time)
     # image.image_size.append(image_size)
     # image.image_formats.append(image_format)

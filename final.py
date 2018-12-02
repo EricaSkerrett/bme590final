@@ -7,6 +7,7 @@ import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import zipfile
 from skimage import io
+import imghdr  # had a hard time trying to get skimage to work with the format
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -137,13 +138,13 @@ def image_upload():
     validate_image_upload(r)
     image_dict = image_encoder(r["uploaded_images"])
     image_size = get_size(image_dict)
-    # image_format = call on a function to extract image format
+    image_format = get_format(image_dict)
     upload_time = datetime.now()
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.uploaded_images.append(image_dict)
     image.upload_times.append(upload_time)
-    # image.image_size.append(image_size)
-    # image.image_formats.append(image_format)
+    image.image_size.append(image_size)
+    image.image_formats.append(image_format)
     image.save()
     return "Uploaded", 200
 
@@ -161,13 +162,34 @@ def get_size(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        with open (image, "rb") as image_file:
+        with open(image, "rb") as image_file:
             read_image = io.imread(image_file)
             size = read_image.shape
             image_dict[image] = size  # replaces base64 values with size/
             # may not be the best method/efficient
     size_dict = image_dict
     return size_dict
+
+
+def get_format(image_dict):
+    """ Opens images from dictionary to find image format
+
+    Args:
+        image_dict: dictionary containing base64 values and image name keys
+
+    Returns:
+        format_dict: dictionary containing image format values and
+        image name keys. Formats are strings
+
+    """
+    image_name = image_dict.keys()
+    for image in image_name:
+        with open(image, "rb") as image_file:
+            im_format = imghdr.what(image_file)
+            image_dict[image] = im_format  # replaces base64 values with format
+            # may not be the best method/efficient
+    format_dict = image_dict
+    return format_dict
 
 
 def validate_image_processed_upload(r):

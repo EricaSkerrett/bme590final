@@ -35,6 +35,10 @@ def test_image_encoder():
     assert 1 == 1
 
 
+def test_unzip_folder():
+    assert 1 == 1
+
+
 def test_validate_image_processed_upload():
     r1 = {"user_email": "name@email.com"}
     r2 = {"user_email": "name@email.com", "processed_images": "string12"}

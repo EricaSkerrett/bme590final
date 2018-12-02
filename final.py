@@ -5,6 +5,7 @@ import base64
 import io
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
+import zipfile
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -78,22 +79,46 @@ def validate_image_upload(r):
                              "uploaded_images keys.")
 
 
-def image_encoder(image_name):
-    """ Encodes user-uploaded image in a base64 string for saving to db
+def image_encoder(file_list):
+    """ Encodes user-uploaded images in a base64 string for saving to db
 
     Args:
-        image_name: string containing filename of image to be encoded
+        file_list: list containing strings of file names or
+        zip folder of images to be encoded
 
     Returns:
-        base64_string: image encoded in a base64 string
+        base64_strings: list of images encoded in a base64 string
 
     """
-    # note right now this only works for a single file upload at a time
-    # for .zip: write a function that unzips, use an if statement to call
-    #           on that function if needed
-    with open(image_name, "rb") as image_file:
-        base64_string = base64.b64encode(image_file.read())
-    return base64_string
+    # we may need to pair each base64 string to the name of the original file
+    # we may also want to split this into 2 functions depending on unit testing
+    base64_strings = []
+    for file in file_list:
+        if file.endswith('.zip'):
+            image_names = unzip_folder(file)
+            file_list.remove(file)
+        file_list.append(image_names)
+    for image in image_names:
+        with open(image, "rb") as image_file:
+            base64_string = base64.b64encode(image_file.read())
+            base64_strings.append(base64_string)
+    return base64_strings
+
+
+def unzip_folder(zipped_folder):
+    """ Reads items from a zipped folder and stores in list
+
+    Args:
+        zipped_folder: string containing name of .zip folder to be read
+
+    Returns:
+        file_list: list of items in .zip folder in style of
+        "foldername/file.ext"
+
+    """
+    zf = zipfile.ZipFile(zipped_folder, 'r')
+    name_list = zf.namelist()
+    return name_list
 
 
 @app.route("/image/upload", methods=["POST"])
@@ -109,12 +134,12 @@ def image_upload():
     """
     r = request.get_json()
     validate_image_upload(r)
-    base64string = image_encoder(r["uploaded_images"])
+    base64strings = image_encoder(r["uploaded_images"])
     # image_size = call on a function to find image size
     # image_format = call on a function to extract image format
     upload_time = datetime.now()
     image = Image.objects.raw({"_id": r["user_email"]}).first()
-    image.uploaded_images.append(base64string)
+    image.uploaded_images.append(base64strings)
     image.upload_times.append(upload_time)
     # image.image_size.append(image_size)
     # image.image_formats.append(image_format)
@@ -123,7 +148,7 @@ def image_upload():
 
 
 def validate_image_processed_upload(r):
-    """ Validates user inputs for posts to to /image/processed/upload
+    """ Valbdates user inputs for posts to to /image/processed/upload
 
     Args:
         r: dictionary containing user_email, processed_images, and

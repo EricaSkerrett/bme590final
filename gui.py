@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QPushButton, QAction
+from PyQt5.QtWidgets import QMainWindow, QPushButton
 from PyQt5.QtCore import pyqtSlot
 
 

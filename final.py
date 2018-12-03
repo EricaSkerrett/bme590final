@@ -6,17 +6,19 @@ import io
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import zipfile
+from skimage import io
+import imghdr  # had a hard time trying to get skimage to work with the format
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
 
 
-class Image(MongoModel):
+class ImageDB(MongoModel):
     user_email = fields.EmailField(primary_key=True)
-    uploaded_images = fields.ListField(field=fields.CharField())
-    image_formats = fields.ListField(field=fields.CharField())
+    uploaded_images = fields.ListField(field=fields.DictField())
+    image_formats = fields.ListField(field=fields.DictField())
     upload_times = fields.ListField(field=fields.DateTimeField())
-    image_size = fields.ListField()
+    image_size = fields.ListField(field=fields.DictField())
     processed_images = fields.ListField(field=fields.CharField())
     process_types = fields.ListField(field=fields.CharField())
     process_times = fields.ListField(field=fields.DateTimeField())
@@ -51,7 +53,7 @@ def create_user():
     """
     r = request.get_json()
     validate_create_user(r)
-    entry = Image(r["user_email"])
+    entry = ImageDB(r["user_email"])
     entry.save()
     return "Created", 200
 
@@ -135,16 +137,59 @@ def image_upload():
     r = request.get_json()
     validate_image_upload(r)
     image_dict = image_encoder(r["uploaded_images"])
-    # image_size = call on a function to find image size
-    # image_format = call on a function to extract image format
+    image_size = get_size(image_dict)
+    image_format = get_format(image_dict)
     upload_time = datetime.now()
-    image = Image.objects.raw({"_id": r["user_email"]}).first()
+    image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.uploaded_images.append(image_dict)
     image.upload_times.append(upload_time)
-    # image.image_size.append(image_size)
-    # image.image_formats.append(image_format)
+    image.image_size.append(image_size)
+    image.image_formats.append(image_format)
     image.save()
     return "Uploaded", 200
+
+
+def get_size(image_dict):
+    """ Opens images from dictionary to find image size
+
+    Args:
+        image_dict: dictionary containing base64 values and image name keys
+
+    Returns:
+        size_dict: dictionary containing size values and image name keys
+        Sizes are in tuples (H, W, D)
+
+    """
+    image_name = image_dict.keys()
+    for image in image_name:
+        with open(image, "rb") as image_file:
+            read_image = io.imread(image_file)
+            size = read_image.shape
+            image_dict[image] = size  # replaces base64 values with size/
+            # may not be the best method/efficient
+    size_dict = image_dict
+    return size_dict
+
+
+def get_format(image_dict):
+    """ Opens images from dictionary to find image format
+
+    Args:
+        image_dict: dictionary containing base64 values and image name keys
+
+    Returns:
+        format_dict: dictionary containing image format values and
+        image name keys. Formats are strings
+
+    """
+    image_name = image_dict.keys()
+    for image in image_name:
+        with open(image, "rb") as image_file:
+            im_format = imghdr.what(image_file)
+            image_dict[image] = im_format  # replaces base64 values with format
+            # may not be the best method/efficient
+    format_dict = image_dict
+    return format_dict
 
 
 def validate_image_processed_upload(r):
@@ -191,7 +236,7 @@ def image_processed_upload():
     validate_image_processed_upload(r)
     process_type = r["process_types"]
     process_time = datetime.now()
-    image = Image.objects.raw({"_id": r["user_email"]}).first()
+    image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.processed_images.append(r["processed_images"])
     image.process_times.append(process_time)
     image.process_types.append(process_type)
@@ -229,7 +274,7 @@ def get_uploaded_images(user_email):
         Plots of the images the specified user has uploaded
 
     """
-    image = Image.objects.raw({"_id": user_email}).first()
+    image = ImageDB.objects.raw({"_id": user_email}).first()
     uploaded_images = image.uploaded_images
     image_format = image.image_formats
     # note that this doesn't allow for viewing multiple images:

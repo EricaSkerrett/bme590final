@@ -9,3 +9,5 @@ flask
 pymodm
 matplotlib
 scikit-image
+PyQt5
+PyQt5-sip

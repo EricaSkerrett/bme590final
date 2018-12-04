@@ -20,19 +20,25 @@ class App(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Welcome!')
         # first button for new users
+        self.button_new_user()
+        # second button for existing users
+        self.button_existing_user()
+
+        self.show()
+
+    def button_new_user(self):
         button = QPushButton('Create New User', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(100, 200)
         button.clicked.connect(self.get_text)
-        # second button for existing users
+
+    def button_existing_user(self):
         button = QPushButton('Existing User', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(320, 200)
         button.clicked.connect(self.get_text)
-
-        self.show()
 
     def get_text(self):
         text, ok_pressed = QInputDialog.getText(

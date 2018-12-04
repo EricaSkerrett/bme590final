@@ -1,5 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QPushButton
+from PyQt5.QtWidgets import QMainWindow, QPushButton, \
+    QApplication, QInputDialog, QLineEdit
 from PyQt5.QtCore import pyqtSlot
 
 
@@ -18,16 +19,30 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Welcome!')
-        button = QPushButton('Register', self)
+        # first button for new users
+        button = QPushButton('Create New User', self)
+        button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(280, 300)
-        button.clicked.connect(self.create_user)
+        button.move(100, 200)
+        button.clicked.connect(self.get_text)
+        # second button for existing users
+        button = QPushButton('Existing User', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(320, 200)
+        button.clicked.connect(self.get_text)
 
         self.show()
 
+    def get_text(self):
+        text, ok_pressed = QInputDialog.getText(
+            self, "Account Information", "Username:", QLineEdit.Normal, "")
+        if ok_pressed and text != '':
+            self.create_user(text)
+
     @pyqtSlot()
-    def create_user(self):
-        print('Register to database')
+    def create_user(self, text):
+        print(text)
         # place holder for a post function
 
 

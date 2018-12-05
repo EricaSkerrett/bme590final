@@ -58,6 +58,32 @@ def create_user():
     return "Created", 200
 
 
+@app.route("/image/user/<user_email>", methods=["GET"])
+def returning_user(user_email):
+    """ GETS a returning image processor user (identified by email) from db
+
+    Args:
+        user_email: string containing returning user's email
+
+    Returns:
+         email: json containing user_email and error_message keys
+
+    """
+    for user in ImageDB.objects.raw({}):
+        if user.user_email == user_email:
+            email = {
+                    "user_email": user_email,
+                    "error_message": 'None'
+                    }
+            break
+        else:
+            email = {"user_email": "Not in database",
+                     "error_message": 'User not in database. Please enter'
+                                      ' an email in the database or create'
+                                      ' a new user.'}
+    return jsonify(email)
+
+
 def validate_image_upload(r):
     """ Validates user inputs for posts to /image/upload
 
@@ -272,6 +298,7 @@ def get_uploaded_images(user_email):
 
     Returns:
         Plots of the images the specified user has uploaded
+        uploaded_images: dict containing uploaded image keys and strings
 
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
@@ -281,6 +308,7 @@ def get_uploaded_images(user_email):
     # should allow for iteration through list of uploaded images
     # and image_formats so that all uploaded images can be viewed
     view_b64_image(image_format, uploaded_images)
+    return uploaded_images
 
 
 if __name__ == "__main__":

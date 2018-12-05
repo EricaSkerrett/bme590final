@@ -1,6 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QMainWindow, QPushButton, \
-    QApplication, QInputDialog, QLineEdit, QLabel
+    QApplication, QInputDialog, QLineEdit, QLabel,\
+    QFileDialog
 from PyQt5.QtCore import pyqtSlot
 
 
@@ -69,7 +70,26 @@ class App2(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Step 1: Upload Images!')
+        self.button_upload()
         self.show()
+
+    def button_upload(self):
+        button = QPushButton('Upload Image', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 200)
+        button.clicked.connect(self.image_upload_dialog)
+
+    def image_upload_dialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        file_name, _ = QFileDialog.getOpenFileNames(
+            self, "QFileDialog.getOpenFileNames()", "",
+            "All Files (*)", options=options)
+        if file_name:
+            print(file_name)
+        else:
+            print("Warning: Empty")
 
 
 if __name__ == '__main__':

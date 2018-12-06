@@ -302,7 +302,6 @@ def get_uploaded_images(user_email):
     # note that this doesn't allow for viewing multiple images:
     # should allow for iteration through list of uploaded images
     # and image_formats so that all uploaded images can be viewed
-    view_b64_image(image_format, uploaded_images)
     return uploaded_images
 
 

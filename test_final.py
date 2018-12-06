@@ -22,9 +22,10 @@ def test_validate_create_user():
 
 def test_validate_image_upload():
     r1 = {"user_email": "name@email.com"}
-    r2 = {"uploaded_images": "string"}
-    r3 = {"user_email": "name", "uploaded_images": "string"}
-    r4 = {"user_email": "name@email.com", "uploaded_images": 23456}
+    r2 = {"uploaded_images": ["image.jpg"]}
+    r3 = {"user_email": "name", "uploaded_images": ["image.jpg"]}
+    r4 = {"user_email": "name@email.com", "uploaded_images": ["image",
+                                                              "image.png"]}
 
     with pytest.raises(AttributeError):
         final.validate_image_upload(r1)
@@ -73,14 +74,18 @@ def test_get_format():
 
 def test_validate_image_processed_upload():
     r1 = {"user_email": "name@email.com"}
-    r2 = {"user_email": "name@email.com", "processed_images": "string12"}
-    r3 = {"processed_images": "string123", "process_types": "Reverse Video"}
-    r4 = {"user_email": "name", "processed_images": "String345",
-          "process_types": "Histogram Equalization"}
-    r5 = {"user_email": "name@email.com", "processed_images": 862,
-          "process_types": "Histogram Equalization"}
-    r6 = {"user_email": "name@email.com", "processed_images": "String345",
-          "process_types": "no processing"}
+    r2 = {"user_email": "name@email.com", "processed_image": "string12"}
+    r3 = {"processed_image": "string123", "process_type": "Reverse Video"}
+
+    r4 = {"user_email": "name", "image_name": "name.jpg", "processed_image":
+          "String345", "process_type": "Histogram Equalization"}
+    r5 = {"user_email": "name@email.com", "image_name": 123,
+          "processed_image": "string123", "process_type":
+          "Histogram Equalization"}
+    r6 = {"user_email": "name@email.com", "image_name": "name.jpg",
+          "processed_image": 123, "process_type": "Histogram Equalization"}
+    r7 = {"user_email": "name@email.com", "image_name": "name.jpg",
+          "processed_image": "String345", "process_type": "no processing"}
 
     with pytest.raises(AttributeError):
         final.validate_image_processed_upload(r1)
@@ -94,3 +99,5 @@ def test_validate_image_processed_upload():
         final.validate_image_processed_upload(r5)
     with pytest.raises(TypeError):
         final.validate_image_processed_upload(r6)
+    with pytest.raises(TypeError):
+        final.validate_image_processed_upload(r7)

@@ -19,9 +19,7 @@ class ImageDB(MongoModel):
     image_formats = fields.ListField(field=fields.DictField())
     upload_times = fields.ListField(field=fields.DateTimeField())
     image_size = fields.ListField(field=fields.DictField())
-    processed_images = fields.ListField(field=fields.CharField())
-    process_types = fields.ListField(field=fields.CharField())
-    process_times = fields.ListField(field=fields.DateTimeField())
+    processed_info = fields.ListField(field=fields.DictField())
     user_metrics = fields.DictField()
 
 
@@ -92,16 +90,20 @@ def validate_image_upload(r):
 
         Returns:
             AttributeError: when r does not contain the 2 required keys
-            TypeError: when user_email is not an email/when uploaded_images
-                       does not end in .jpg, .tiff, .png, or .zip
+            TypeError: when user_email is not an email/when keys in
+                       uploaded_images does not end in .jpg, .tiff,
+                       .png, or .zip
 
         """
     if all(k in r for k in ("user_email", "uploaded_images")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
-        elif ".jpg" or ".png" or ".tiff" or ".zip" \
-                not in r["uploaded_images"]:
-            raise TypeError("Uploaded image must be JPG, PNG, or TIFF.")
+        elif r["uploaded_images"] is not None:
+            for image in r["uploaded_images"]:
+                if ".jpg" or ".png" or ".tiff" or ".zip" \
+                 not in image:
+                    raise TypeError("Uploaded image must be JPG,"
+                                    " PNG, or TIFF.")
     else:
         raise AttributeError("Post must be dict with user_email and"
                              "uploaded_images keys.")
@@ -118,8 +120,6 @@ def image_encoder(file_list):
         image_dict: dictionary of images and their encoded base64 string
 
     """
-    # we may need to pair each base64 string to the name of the original file
-    # we may also want to split this into 2 functions depending on unit testing
     image_dict = {}
     for file in file_list:
         if file.endswith('.zip'):
@@ -235,27 +235,30 @@ def validate_image_processed_upload(r):
     """ Validates user inputs for posts to to /image/processed/upload
 
     Args:
-        r: dictionary containing user_email, processed_images, and
+        r: dictionary containing user_email, image_name, processed_images, and
            process_types keys
 
     Returns:
          AttributeError: when r does not contain required keys
          TypeError: when user_email is not a valid email, when
-                    processed_images is not a string, when process_types
-                    is not a specified processing type
+                    processed_image is not a string, when process_type
+                    is not a specified processing type, when image_name is
+                    not a string
 
     """
-    if all(k in r for k in ("user_email", "processed_images",
-                            "process_types")):
+    if all(k in r for k in ("user_email", "image_name", "processed_image",
+                            "process_type")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
-        elif type(r["processed_images"]) is not str:
-            raise TypeError("processed_images must be a base64 type string.")
-        elif r["process_types"] is not "Histogram Equalization" or "\
+        elif type(r["image_name"]) is not str:
+            raise TypeError("image_name must be a string.")
+        elif type(r["processed_image"]) is not str:
+            raise TypeError("processed_image must be a base64 type string.")
+        elif r["process_type"] is not "Histogram Equalization" or "\
         Contrast Stretching" or "Log Compression" or "Reverse Video":
-            raise TypeError("process_types must be one of the 4 specified.")
+            raise TypeError("process_type must be one of the 4 specified.")
     else:
-        raise AttributeError("Post must be dict with user_email, "
+        raise AttributeError("Post must be dict with user_email, image_name "
                              "processed_images, and process_types keys.")
 
 
@@ -273,12 +276,14 @@ def image_processed_upload():
     """
     r = request.get_json()
     validate_image_processed_upload(r)
-    process_type = r["process_types"]
+    image_name = r["image_name"]
+    process_type = r["process_type"]
     process_time = datetime.now()
+    process_info = {image_name: r["processed_image"],
+                    "process_type": process_type,
+                    "process_time": process_time}
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
-    image.processed_images.append(r["processed_images"])
-    image.process_times.append(process_time)
-    image.process_types.append(process_type)
+    image.processed_info.append(process_info)
     # update user_metrics dict (find process type key and add 1)
     image.save()
     return "Uploaded", 200

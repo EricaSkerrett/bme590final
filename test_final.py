@@ -54,7 +54,8 @@ def test_get_size():
 
 def test_decode():
     global global_b641
-    decoded_image = final.decode(global_b641)
+    image_buf = final.decode(global_b641)
+    decoded_image = final.skimage.io.imread(image_buf)
     first = decoded_image[0, 0, 0]
     length = len(decoded_image)
     last = decoded_image[-1, -1, -1]
@@ -93,7 +94,3 @@ def test_validate_image_processed_upload():
         final.validate_image_processed_upload(r5)
     with pytest.raises(TypeError):
         final.validate_image_processed_upload(r6)
-
-
-def test_view_b64_image():
-    assert 1 == 1

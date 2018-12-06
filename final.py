@@ -188,7 +188,8 @@ def get_size(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        i = decode(image_dict[image])
+        img_buf = decode(image_dict[image])
+        i = skimage.io.imread(img_buf)
         size = i.shape
         image_dict[image] = size  # replaces base64 with size
     size_dict = image_dict
@@ -202,13 +203,12 @@ def decode(encoded_image):
         encoded_image: base64 string encoding list
 
     Returns:
-        i: decoded image array
+        img_buf:
 
     """
     img_bytes = base64.b64decode(encoded_image)
     img_buf = io.BytesIO(img_bytes)
-    i = skimage.io.imread(img_buf)
-    return i
+    return img_buf
 
 
 def get_format(image_dict):
@@ -224,9 +224,7 @@ def get_format(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        image_bytes = base64.b64decode(image_dict[image])
-        image_buf = io.BytesIO(image_bytes)
-        # doesn't use decode func b/c don't want "read"
+        image_buf = decode(image_dict[image])
         im_format = imghdr.what(image_buf)
         image_dict[image] = im_format
     format_dict = image_dict
@@ -284,24 +282,6 @@ def image_processed_upload():
     # update user_metrics dict (find process type key and add 1)
     image.save()
     return "Uploaded", 200
-
-
-def view_b64_image(image_format, base64_string):
-    """ Decodes and shows base64 strings as images
-
-    Args:
-        image_format: type of file image was before encoding
-        base64_string: encoded string of base64 bytes
-
-    Returns:
-        Plot of decoded image
-
-    """
-    image_bytes = base64.b64decode(base64_string)
-    image_buf = io.BytesIO(image_bytes)
-    i = mpimg.imread(image_buf, format=image_format)
-    plt.imshow(i, interpolation='nearest')
-    plt.show()
 
 
 @app.route("/image/upload/<user_email>", methods=["GET"])

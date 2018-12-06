@@ -1,6 +1,9 @@
 import pytest
 import final
 
+global_image1 = "test_images/capy.jpg"  # uses global var to avoid reopening files
+global_open1 = open(global_image1, "rb")
+global_b641 = final.base64.b64encode(global_open1.read())
 
 def test_validate_create_user():
     r1 = {"user": "Name"}
@@ -36,6 +39,28 @@ def test_image_encoder():
 
 
 def test_unzip_folder():
+    assert 1 == 1
+
+
+def test_get_size():
+    global global_image1
+    global global_b641
+    name_dict = {global_image1: global_b641}
+    size_dict = final.get_size(name_dict)
+    assert size_dict == {global_image1: (416, 624, 3)}
+
+
+def test_decode():
+    global global_b641
+    decoded_image = final.decode(global_b641)
+    first = decoded_image[0, 0, 0]
+    length = len(decoded_image)
+    last = decoded_image[-1, -1, -1]
+    param = [first, length, last]
+    assert param == [132, 416, 24]
+
+
+def test_get_format():
     assert 1 == 1
 
 

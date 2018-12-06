@@ -177,6 +177,7 @@ def decode(encoded_image):
 
     Returns:
         i: decoded image array
+
     """
     img_bytes = base64.b64decode(encoded_image)
     img_buf = io.BytesIO(img_bytes)
@@ -197,9 +198,11 @@ def get_format(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        with open(image, "rb") as image_file:
-            im_format = imghdr.what(image_file)
-            image_dict[image] = im_format
+        image_bytes = base64.b64decode(image_dict[image])
+        image_buf = io.BytesIO(image_bytes)
+        # doesn't use decode func b/c don't want "read"
+        im_format = imghdr.what(image_buf)
+        image_dict[image] = im_format
     format_dict = image_dict
     return format_dict
 

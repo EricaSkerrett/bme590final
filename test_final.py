@@ -1,9 +1,11 @@
 import pytest
 import final
 
-global_image1 = "test_images/capy.jpg"  # uses global var to avoid reopening files
+# uses global var to avoid reopening files
+global_image1 = "test_images/capy.jpg"
 global_open1 = open(global_image1, "rb")
 global_b641 = final.base64.b64encode(global_open1.read())
+
 
 def test_validate_create_user():
     r1 = {"user": "Name"}
@@ -61,7 +63,11 @@ def test_decode():
 
 
 def test_get_format():
-    assert 1 == 1
+    global global_image1
+    global global_b641
+    name_dict = {global_image1: global_b641}
+    format_dict = final.get_format(name_dict)
+    assert format_dict == {global_image1: "jpeg"}
 
 
 def test_validate_image_processed_upload():

@@ -6,7 +6,7 @@ import io
 import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import zipfile
-from skimage import io
+import skimage
 import imghdr  # had a hard time trying to get skimage to work with the format
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
@@ -176,7 +176,7 @@ def image_upload():
 
 
 def get_size(image_dict):
-    """ Opens images from dictionary to find image size
+    """ Reads images from dictionary to find image size
 
     Args:
         image_dict: dictionary containing base64 values and image name keys
@@ -188,13 +188,27 @@ def get_size(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        with open(image, "rb") as image_file:
-            read_image = io.imread(image_file)
-            size = read_image.shape
-            image_dict[image] = size  # replaces base64 values with size/
-            # may not be the best method/efficient
+        i = decode(image_dict[image])
+        size = i.shape
+        image_dict[image] = size  # replaces base64 with size
     size_dict = image_dict
     return size_dict
+
+
+def decode(encoded_image):
+    """ Takes an encoded image and decodes it for further processing
+
+    Args:
+        encoded_image: base64 string encoding list
+
+    Returns:
+        i: decoded image array
+
+    """
+    img_bytes = base64.b64decode(encoded_image)
+    img_buf = io.BytesIO(img_bytes)
+    i = skimage.io.imread(img_buf)
+    return i
 
 
 def get_format(image_dict):
@@ -210,10 +224,11 @@ def get_format(image_dict):
     """
     image_name = image_dict.keys()
     for image in image_name:
-        with open(image, "rb") as image_file:
-            im_format = imghdr.what(image_file)
-            image_dict[image] = im_format  # replaces base64 values with format
-            # may not be the best method/efficient
+        image_bytes = base64.b64decode(image_dict[image])
+        image_buf = io.BytesIO(image_bytes)
+        # doesn't use decode func b/c don't want "read"
+        im_format = imghdr.what(image_buf)
+        image_dict[image] = im_format
     format_dict = image_dict
     return format_dict
 

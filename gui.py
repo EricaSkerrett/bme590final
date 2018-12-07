@@ -2,7 +2,7 @@ import sys
 import os
 from PyQt5.QtWidgets import QMainWindow, QPushButton, \
     QApplication, QInputDialog, QLineEdit, QLabel,\
-    QFileDialog
+    QFileDialog, QTextEdit
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -11,12 +11,11 @@ class App(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.title = 'Image Processor'
+        self.title = 'BME 590 Image Processor'
         self.left = 10
         self.top = 10
         self.width = 640
         self.height = 400
-        self.label = QLabel()
         self.init_gui()
         self.next = None
 
@@ -24,9 +23,14 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Welcome!')
+        self.display_text()
         self.button_new_user()
         self.button_existing_user()
         self.show()
+
+    def display_text(self):
+        label = QLabel('Author: ', self)
+        label.move(200, 350)
 
     def button_new_user(self):
         button = QPushButton('Create New User', self)
@@ -116,7 +120,7 @@ class App3(QMainWindow):
         # Create widget
         label = QLabel(self)
         pixmap = QPixmap(os.path.join(self.path, self.filename))
-        pixmap2 = pixmap.scaledToWidth(300)
+        pixmap2 = pixmap.scaledToWidth(400)
         label.setPixmap(pixmap2)
         label.setGeometry(10, 10, 640, 480)
         self.button_upload()

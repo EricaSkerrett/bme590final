@@ -101,6 +101,7 @@ class App2(QMainWindow):
 
 
 # this will page will display image and choose images to upload.
+# this for now only works for one image
 class App3(QMainWindow):
 
     def __init__(self, filename=""):
@@ -110,6 +111,7 @@ class App3(QMainWindow):
         self.top = 10
         self.width = 640
         self.height = 400
+        self.next = None
         self.path, self.filename = os.path.split(filename[0])
         self.init_gui()
 
@@ -122,7 +124,7 @@ class App3(QMainWindow):
         pixmap = QPixmap(os.path.join(self.path, self.filename))
         pixmap2 = pixmap.scaledToWidth(400)
         label.setPixmap(pixmap2)
-        label.setGeometry(10, 10, 640, 480)
+        label.setGeometry(120, 20, 640, 280)
         self.button_upload()
         self.show()
 
@@ -135,6 +137,52 @@ class App3(QMainWindow):
 
     def print_text(self):
         print("button clicked")
+        self.next = App4()
+        # place holder for get and post request
+
+    # place holder for zip file scroll down menu
+    # def list_image(self)
+
+    class App3(QMainWindow):
+
+        def __init__(self, filename=""):
+            super().__init__()
+            self.title = 'Image Processor'
+            self.left = 10
+            self.top = 10
+            self.width = 640
+            self.height = 400
+            self.next = None
+            self.path, self.filename = os.path.split(filename[0])
+            self.init_gui()
+
+        def init_gui(self):
+            self.setWindowTitle(self.title)
+            self.setGeometry(self.left, self.top, self.width, self.height)
+            self.statusBar().showMessage('Step 2: Upload Image(s)!')
+            # Create widget
+            label = QLabel(self)
+            pixmap = QPixmap(os.path.join(self.path, self.filename))
+            pixmap2 = pixmap.scaledToWidth(400)
+            label.setPixmap(pixmap2)
+            label.setGeometry(120, 20, 640, 280)
+            self.button_upload()
+            self.show()
+
+        def button_upload(self):
+            button = QPushButton('Upload Image', self)
+            button.setMinimumSize(200, 40)
+            button.setToolTip('This is an example button')
+            button.move(220, 300)
+            button.clicked.connect(self.print_text)
+
+        def print_text(self):
+            print("button clicked")
+            self.next = App4()
+            # place holder for get and post request
+
+        # place holder for zip file scroll down menu
+        # def list_image(self)
 
 
 if __name__ == '__main__':

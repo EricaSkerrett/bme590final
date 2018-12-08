@@ -178,7 +178,7 @@ def image_upload():
 
     Posts user-uploaded image as an encoded base64 string as well as image
     upload time, format, and size to database under the user's email.
-    Uploads metrics for user based off number of images uploaded.
+    Updates metrics for user based off number of images uploaded.
 
     Returns:
         200 status after the posting has occurred

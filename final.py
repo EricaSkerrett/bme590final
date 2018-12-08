@@ -41,9 +41,31 @@ def validate_create_user(r):
         raise AttributeError("Post must be dict with user_email key.")
 
 
+def init_user_metrics(user_email):
+    """ Creates the user_metrics dict for new user with all keys set to 0
+
+    Args:
+        user_email: the new user's email string (database id)
+
+    Returns:
+        user_metrics: a dictionary to hold the metrics for that user's
+                      processes, with all keys initially set to 0
+
+    """
+    user_metrics = {"User": user_email,
+                    "Images Uploaded": 0,
+                    "Images Processed": 0,
+                    "Histogram Equalization": 0,
+                    "Contrast Stretching": 0,
+                    "Log Compression": 0,
+                    "Reverse Video": 0,
+                    "Time to Complete Last Process": 0}
+    return user_metrics
+
+
 @app.route("/image/user", methods=["POST"])
 def create_user():
-    """ POSTS a new image processor user (identified by email) to database
+    """ POSTS a new user's email and their initialized metrics to database
 
     Returns:
         200 status after posting has occurred
@@ -51,7 +73,8 @@ def create_user():
     """
     r = request.get_json()
     validate_create_user(r)
-    entry = ImageDB(r["user_email"])
+    user_metrics = init_user_metrics(r["user_email"])
+    entry = ImageDB(r["user_email"], user_metrics=user_metrics)
     entry.save()
     return "Created", 200
 
@@ -154,7 +177,8 @@ def image_upload():
     """ POSTs user-uploaded image to database
 
     Posts user-uploaded image as an encoded base64 string as well as image
-    upload time, format, and size to database under the user's email
+    upload time, format, and size to database under the user's email.
+    Uploads metrics for user based off number of images uploaded.
 
     Returns:
         200 status after the posting has occurred
@@ -166,11 +190,13 @@ def image_upload():
     image_size = get_size(image_dict)
     image_format = get_format(image_dict)
     upload_time = datetime.now()
+
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.uploaded_images.append(image_dict)
     image.upload_times.append(upload_time)
     image.image_size.append(image_size)
     image.image_formats.append(image_format)
+    image.user_metrics["Images Uploaded"] += len(image_dict)
     image.save()
     return "Uploaded", 200
 
@@ -266,7 +292,7 @@ def validate_image_processed_upload(r):
 def image_processed_upload():
     """ POSTs processed images to database
 
-    Posts processed image (processed by GET request) as encoded base64 string
+    Posts processed image as a dictionary containing the encoded base64 string
     as well as image processing time, image processing type, and updated user
     metrics to the database under the user's email
 
@@ -282,31 +308,28 @@ def image_processed_upload():
     process_info = {image_name: r["processed_image"],
                     "process_type": process_type,
                     "process_time": process_time}
+
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.processed_info.append(process_info)
-    # update user_metrics dict (find process type key and add 1)
+    image.user_metrics[r["process_type"]] += 1
+    image.user_metrics["Images Processed"] += 1
     image.save()
     return "Uploaded", 200
 
 
 @app.route("/image/upload/<user_email>", methods=["GET"])
 def get_uploaded_images(user_email):
-    """ Retrieves and shows all uploaded images for specified user
+    """ Retrieves all uploaded images for specified user
 
     Args:
         user_email: email of user that has the desired uploaded images
 
     Returns:
-        Plots of the images the specified user has uploaded
         uploaded_images: dict containing uploaded image keys and strings
 
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
     uploaded_images = image.uploaded_images
-    image_format = image.image_formats
-    # note that this doesn't allow for viewing multiple images:
-    # should allow for iteration through list of uploaded images
-    # and image_formats so that all uploaded images can be viewed
     return uploaded_images
 
 

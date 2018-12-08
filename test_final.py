@@ -20,6 +20,28 @@ def test_validate_create_user():
         final.validate_create_user(r3)
 
 
+@pytest.mark.parametrize("a, expected", [
+    ("test_user@gmail.com", {"User": "test_user@gmail.com",
+                             "Images Uploaded": 0,
+                             "Images Processed": 0,
+                             "Histogram Equalization": 0,
+                             "Contrast Stretching": 0,
+                             "Log Compression": 0,
+                             "Reverse Video": 0,
+                             "Time to Complete Last Process": 0}),
+    ("email_test2@duke.edu", {"User": "email_test2@duke.edu",
+                              "Images Uploaded": 0,
+                              "Images Processed": 0,
+                              "Histogram Equalization": 0,
+                              "Contrast Stretching": 0,
+                              "Log Compression": 0,
+                              "Reverse Video": 0,
+                              "Time to Complete Last Process": 0})
+])
+def test_init_user_metrics(a, expected):
+    assert final.init_user_metrics(a) == expected
+
+
 def test_validate_image_upload():
     r1 = {"user_email": "name@email.com"}
     r2 = {"uploaded_images": ["image.jpg"]}

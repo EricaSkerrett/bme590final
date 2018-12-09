@@ -177,32 +177,47 @@ class App4(QMainWindow):
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 60)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.histogram)
 
     def button2(self):
         button = QPushButton('Contrast Stretching', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 120)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.contrast)
 
     def button3(self):
         button = QPushButton('Log Compression', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 180)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.compression)
 
     def button4(self):
         button = QPushButton('Reverse Video', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 240)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.reverse)
 
     @pyqtSlot()
-    def on_click(self):
-        print('PyQt5 button click')
+    def histogram(self):
+        print('Histogram Equalization')
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def contrast(self):
+        print('Contrast Stretching')
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def compression(self):
+        print('Log Compression')
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def reverse(self):
+        print('Reverse Video')
         # place holder for get and post request
 
     # place holder for zip file scroll down menu

@@ -7,7 +7,9 @@ import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import zipfile
 import skimage
-import imghdr  # had a hard time trying to get skimage to work with the format
+from skimage import exposure
+from skimage.viewer import ImageViewer
+import imghdr
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -203,7 +205,7 @@ def decode(encoded_image):
         encoded_image: base64 string encoding list
 
     Returns:
-        img_buf:
+        img_buf: buffered bytes object
 
     """
     img_bytes = base64.b64decode(encoded_image)
@@ -303,6 +305,32 @@ def get_uploaded_images(user_email):
     # should allow for iteration through list of uploaded images
     # and image_formats so that all uploaded images can be viewed
     return uploaded_images
+
+
+def hist_equalization(encoded_img):
+    """ Takes a b64-encoded image and returns new image array after
+    histogram equalization
+
+    Args:
+        encoded_image: base64 string encoding list
+
+    Returns:
+        eq_img: an array for the new image that underwent histogram
+        equalization
+
+    """
+    img_buf = decode(encoded_img)
+    img = skimage.io.imread(img_buf)
+    gs_img = skimage.color.rgb2gray(img)
+    eq_img = skimage.exposure.equalize_hist(gs_img)
+    viewer = ImageViewer(eq_img)
+    viewer.show()
+    return eq_img
+
+
+def make_hist(img_array):
+    plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
+    plt.show()
 
 
 if __name__ == "__main__":

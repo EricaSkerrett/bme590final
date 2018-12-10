@@ -325,15 +325,16 @@ def process_image(image_string, process_type):
 
     Returns:
         processed_image: array of processed image data
+        process_time: seconds taken for processing to be completed
 
     """
-    if process_type is "Histogram Equalization":
+    if process_type == "Histogram Equalization":
         processed_image, process_time = hist_equalization(image_string)
-    elif process_type is "Contrast Stretching":
+    elif process_type == "Contrast Stretching":
         processed_image, process_time = cont_stretching(image_string)
-    elif process_type is "Log Compression":
+    elif process_type == "Log Compression":
         processed_image, process_time = log_compression(image_string)
-    elif process_type is "Reverse Video":
+    elif process_type == "Reverse Video":
         processed_image, process_time = reverse_video(image_string)
     else:
         processed_image = image_string

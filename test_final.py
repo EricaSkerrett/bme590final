@@ -125,19 +125,27 @@ def test_validate_image_processed_upload():
         final.validate_image_processed_upload(r7)
 
 
-@pytest.mark.parametrize("a, b, expected", [
-    (global_b641, "Histogram Equalization",
-     final.hist_equalization(global_b641)),
-    (global_b641, "Contrast Stretching",
-     final.cont_stretching(global_b641)),
-    (global_b641, "Log Compression",
-     final.log_compression(global_b641)),
-    (global_b641, "Reverse Video",
-     final.reverse_video(global_b641))
-])
-def test_process_image(a, b, expected):
+def test_process_image():
     global global_b641
-    assert final.process_image(a, b) == expected
+    histprocess, histtime = final.process_image(global_b641,
+                                                "Histogram Equalization")
+    contprocess, conttime = final.process_image(global_b641,
+                                                "Contrast Stretching")
+    logprocess, logtime = final.process_image(global_b641,
+                                              "Log Compression")
+    reverseprocess, revtime = final.process_image(global_b641,
+                                                  "Reverse Video")
+
+    oghist, oghisttime = final.hist_equalization(global_b641)
+    ogcont, ogconttime = final.cont_stretching(global_b641)
+    oglog, oglogtime = final.log_compression(global_b641)
+    ogreverse, ogrevtime = final.reverse_video(global_b641)
+
+    assert histprocess.all() == oghist.all()
+    assert contprocess.all() == ogcont.all()
+    assert logprocess.all() == oglog.all()
+    assert reverseprocess.all() == ogreverse.all()
+    assert final.process_image("test.jpg", "no process") == ("test.jpg", 0)
 
 
 def test_hist_equalization():

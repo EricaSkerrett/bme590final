@@ -208,6 +208,23 @@ def image_upload():
     return "Uploaded", 200
 
 
+def list_to_dict(dict_images):
+    """ Takes a list of dictionaries and sorts them into a single dict
+
+    Args:
+        dict_images: A list of dictionaries containing images
+
+    Returns:
+        uploaded_images: a dictionary containing all the keys and info
+                         from the dict_images list
+    """
+    uploaded_images = {}
+    for dicts in dict_images:
+        for image in dicts.keys():
+            uploaded_images.update({image: dicts[image]})
+    return uploaded_images
+
+
 @app.route("/image/upload/<user_email>", methods=["GET"])
 def get_uploaded_images(user_email):
     """ Retrieves all uploaded images for specified user
@@ -222,10 +239,7 @@ def get_uploaded_images(user_email):
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
     dict_images = image.uploaded_images
-    uploaded_images = {}
-    for dicts in dict_images:
-        for image in dicts.keys():
-            uploaded_images.update({image: dicts[image]})
+    uploaded_images = list_to_dict(dict_images)
     return jsonify(uploaded_images)
 
 
@@ -294,26 +308,22 @@ def validate_image_processed_upload(r):
 
     Returns:
          AttributeError: when r does not contain required keys
-         TypeError: when user_email is not a valid email, when
-                    image_string is not a string, when process_type
-                    is not a specified processing type, when image_name is
-                    not a string
+         TypeError: when user_email is not a valid email,
+                    when process_type is not a specified processing type,
+                    when image_name is not a string
 
     """
-    if all(k in r for k in ("user_email", "image_name", "image_string",
-                            "process_type")):
+    if all(k in r for k in ("user_email", "image_name", "process_type")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
             raise TypeError("image_name must be a string.")
-        elif type(r["image_string"]) is not str:
-            raise TypeError("Image to be processed must be a base64 string.")
         elif r["process_type"] is not "Histogram Equalization" or "\
         Contrast Stretching" or "Log Compression" or "Reverse Video":
             raise TypeError("process_type must be one of the 4 specified.")
     else:
-        raise AttributeError("Post must be dict with user_email, image_name "
-                             "image_string, and process_types keys.")
+        raise AttributeError("Post must be dict with user_email, image_name, "
+                             "and process_types keys.")
 
 
 def process_image(image_string, process_type):
@@ -357,16 +367,17 @@ def image_processed_upload():
     r = request.get_json()
     validate_image_processed_upload(r)
     image_name = r["image_name"]
-    image_string = r["image_string"]
     process_type = r["process_type"]
+    image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
+    dict_images = image.uploaded_images
+    uploaded_images = list_to_dict(dict_images)
+    image_string = uploaded_images[image_name]
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
     process_time = datetime.now()
     process_info = {image_name: processed_image,
                     "process_type": process_type,
                     "process_time": process_time}
-
-    image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.processed_info.append(process_info)
     image.user_metrics[process_type] += 1
     image.user_metrics["Images Processed"] += 1

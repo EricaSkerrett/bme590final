@@ -177,36 +177,113 @@ class App4(QMainWindow):
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 60)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.histogram)
 
     def button2(self):
         button = QPushButton('Contrast Stretching', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 120)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.contrast)
 
     def button3(self):
         button = QPushButton('Log Compression', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 180)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.compression)
 
     def button4(self):
         button = QPushButton('Reverse Video', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
         button.move(360, 240)
-        button.clicked.connect(self.on_click)
+        button.clicked.connect(self.reverse)
 
     @pyqtSlot()
-    def on_click(self):
-        print('PyQt5 button click')
+    def histogram(self):
+        print('Histogram Equalization')
+        self.next = App5()
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def contrast(self):
+        print('Contrast Stretching')
+        self.next = App5()
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def compression(self):
+        print('Log Compression')
+        self.next = App5()
+        # place holder for get and post request
+
+    @pyqtSlot()
+    def reverse(self):
+        print('Reverse Video')
+        self.next = App5()
         # place holder for get and post request
 
     # place holder for zip file scroll down menu
     # def list_image(self)
+
+
+class App5(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.title = 'Image Processor'
+        self.left = 10
+        self.top = 10
+        self.width = 640
+        self.height = 400
+        self.next = None
+        self.init_gui()
+
+    def init_gui(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.statusBar().showMessage('Step 4: Download Processed Image(s)!')
+        # self.display_images()
+        self.display_images_info()
+        self.button_download()
+        self.upload_new_images()
+        self.show()
+
+    def display_images(self):
+        label = QLabel(self)
+        # place holder for getting images from server.py
+        pixmap = QPixmap(os.path.join(self.path, self.filename))
+        pixmap2 = pixmap.scaledToWidth(400)
+        label.setPixmap(pixmap2)
+        label.setGeometry(120, 20, 640, 280)
+
+    def display_images_info(self):
+        label = QLabel('Place Holder for Image information', self)
+        label.move(180, 250)
+
+    def button_download(self):
+        button = QPushButton('Download Image', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 300)
+        button.clicked.connect(self.download)
+
+    def upload_new_images(self):
+        button = QPushButton('Upload New Image(s)', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 330)
+        button.clicked.connect(self.new_upload)
+
+    @pyqtSlot()
+    def download(self):
+        print('Download Images')
+
+    @pyqtSlot()
+    def new_upload(self):
+        print('Upload New Images')
+        self.next = App2()
 
 
 if __name__ == '__main__':

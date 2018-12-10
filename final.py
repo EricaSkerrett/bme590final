@@ -359,7 +359,7 @@ def image_processed_upload():
     image_name = r["image_name"]
     image_string = r["image_string"]
     process_type = r["process_type"]
-    processed_image, process_time = process_image(image_string, process_type)
+    processed_image, time_to_process = process_image(image_string, process_type)
     process_time = datetime.now()
     process_info = {image_name: processed_image,
                     "process_type": process_type,
@@ -369,7 +369,7 @@ def image_processed_upload():
     image.processed_info.append(process_info)
     image.user_metrics[process_type] += 1
     image.user_metrics["Images Processed"] += 1
-    image.user_metrics["Time to Complete Last Process"] = process_time
+    image.user_metrics["Time to Complete Last Process"] = time_to_process
     image.save()
     return "Uploaded", 200
 

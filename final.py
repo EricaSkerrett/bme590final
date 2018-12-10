@@ -359,7 +359,8 @@ def image_processed_upload():
     image_name = r["image_name"]
     image_string = r["image_string"]
     process_type = r["process_type"]
-    processed_image, time_to_process = process_image(image_string, process_type)
+    processed_image, time_to_process = process_image(image_string,
+                                                     process_type)
     process_time = datetime.now()
     process_info = {image_name: processed_image,
                     "process_type": process_type,

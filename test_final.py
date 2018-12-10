@@ -149,16 +149,36 @@ def test_process_image():
 
 
 def test_hist_equalization():
-    assert 1 == 1
+    global global_b641
+    eq_img = final.hist_equalization(global_b641)[0]
+    length = len(eq_img)
+    last = eq_img[-1][-1]
+    param = [length, "%.4f" % last]
+    assert param == [416, '0.0108']
 
 
 def test_cont_stretching():
-    assert 1 == 1
+    global global_b641
+    constr_img = final.cont_stretching(global_b641)[0]
+    length = len(constr_img)
+    last = constr_img[-1, -1, -1]
+    param = [length, last]
+    assert param == [416, 154]
 
 
 def test_log_compression():
-    assert 1 == 1
+    global global_b641
+    comp_img = final.log_compression(global_b641)[0]
+    length = len(comp_img)
+    last = comp_img[-1, -1, -1]
+    param = [length, last]
+    assert param == [416, 16]
 
 
 def test_reverse_video():
-    assert 1 == 1
+    global global_b641
+    inv_img = final.reverse_video(global_b641)[0]
+    length = len(inv_img)
+    last = inv_img[-1, -1, -1]
+    param = [length, last]
+    assert param == [416, 231]

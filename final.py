@@ -300,14 +300,14 @@ def validate_image_processed_upload(r):
                     not a string
 
     """
-    if all(k in r for k in ("user_email", "image_name", "processed_image",
+    if all(k in r for k in ("user_email", "image_name", "image_string",
                             "process_type")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
             raise TypeError("image_name must be a string.")
         elif type(r["image_string"]) is not str:
-            raise TypeError("Image to be processed must be a base64 type string.")
+            raise TypeError("Image to be processed must be a base64 string.")
         elif r["process_type"] is not "Histogram Equalization" or "\
         Contrast Stretching" or "Log Compression" or "Reverse Video":
             raise TypeError("process_type must be one of the 4 specified.")

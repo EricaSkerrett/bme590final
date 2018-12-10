@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from pymodm import connect, MongoModel, fields
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 import base64
 import io
 import matplotlib.image as mpimg
@@ -152,9 +153,13 @@ def image_encoder(file_list):
             file_list.remove(file)
             file_list.append(image_names)
     for image in file_list:
-        with open(image, "rb") as image_file:
-            base64_string = base64.b64encode(image_file.read())
-            image_dict.update({image: base64_string})
+        if image.endswith('.jpg') or image.endswith('.tiff') or \
+                image.endswith('.png'):
+                with open(image, "rb") as image_file:
+                    base64_string = base64.b64encode(image_file.read())
+                    image_dict.update({image: base64_string})
+        else:
+            file_list.remove(image)
     return image_dict
 
 
@@ -201,6 +206,27 @@ def image_upload():
     image.user_metrics["Images Uploaded"] += len(image_dict)
     image.save()
     return "Uploaded", 200
+
+
+@app.route("/image/upload/<user_email>", methods=["GET"])
+def get_uploaded_images(user_email):
+    """ Retrieves all uploaded images for specified user
+
+    Args:
+        user_email: email of user that has the desired uploaded images
+
+    Returns:
+        uploaded_images: dict containing all uploaded image keys
+                         and strings
+
+    """
+    image = ImageDB.objects.raw({"_id": user_email}).first()
+    dict_images = image.uploaded_images
+    uploaded_images = {}
+    for dicts in dict_images:
+        for image in dicts.keys():
+            uploaded_images.update({image: dicts[image]})
+    return jsonify(uploaded_images)
 
 
 def get_size(image_dict):
@@ -260,39 +286,65 @@ def get_format(image_dict):
 
 
 def validate_image_processed_upload(r):
-    """ Validates user inputs for posts to to /image/processed/upload
+    """ Validates user inputs for posts to /image/processed/upload
 
     Args:
-        r: dictionary containing user_email, image_name, processed_images, and
+        r: dictionary containing user_email, image_name, image_string, and
            process_types keys
 
     Returns:
          AttributeError: when r does not contain required keys
          TypeError: when user_email is not a valid email, when
-                    processed_image is not a string, when process_type
+                    image_string is not a string, when process_type
                     is not a specified processing type, when image_name is
                     not a string
 
     """
-    if all(k in r for k in ("user_email", "image_name", "processed_image",
+    if all(k in r for k in ("user_email", "image_name", "image_string",
                             "process_type")):
         if "@" not in r["user_email"]:
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
             raise TypeError("image_name must be a string.")
-        elif type(r["processed_image"]) is not str:
-            raise TypeError("processed_image must be a base64 type string.")
+        elif type(r["image_string"]) is not str:
+            raise TypeError("Image to be processed must be a base64 string.")
         elif r["process_type"] is not "Histogram Equalization" or "\
         Contrast Stretching" or "Log Compression" or "Reverse Video":
             raise TypeError("process_type must be one of the 4 specified.")
     else:
         raise AttributeError("Post must be dict with user_email, image_name "
-                             "processed_images, and process_types keys.")
+                             "image_string, and process_types keys.")
+
+
+def process_image(image_string, process_type):
+    """ Processes image string according to one of 4 processing types
+
+    Args:
+        image_string: encoded base64 string of image to be processed
+        process_type: one of 4 supported processing types to be performed
+
+    Returns:
+        processed_image: array of processed image data
+        process_time: seconds taken for processing to be completed
+
+    """
+    if process_type == "Histogram Equalization":
+        processed_image, process_time = hist_equalization(image_string)
+    elif process_type == "Contrast Stretching":
+        processed_image, process_time = cont_stretching(image_string)
+    elif process_type == "Log Compression":
+        processed_image, process_time = log_compression(image_string)
+    elif process_type == "Reverse Video":
+        processed_image, process_time = reverse_video(image_string)
+    else:
+        processed_image = image_string
+        process_time = 0
+    return processed_image, process_time
 
 
 @app.route("/image/processed/upload", methods=["POST"])
 def image_processed_upload():
-    """ POSTs processed images to database
+    """ POSTs images processed by specified processing type to database
 
     Posts processed image as a dictionary containing the encoded base64 string
     as well as image processing time, image processing type, and updated user
@@ -305,34 +357,64 @@ def image_processed_upload():
     r = request.get_json()
     validate_image_processed_upload(r)
     image_name = r["image_name"]
+    image_string = r["image_string"]
     process_type = r["process_type"]
+    processed_image, time_to_process = process_image(image_string,
+                                                     process_type)
     process_time = datetime.now()
-    process_info = {image_name: r["processed_image"],
+    process_info = {image_name: processed_image,
                     "process_type": process_type,
                     "process_time": process_time}
 
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image.processed_info.append(process_info)
-    image.user_metrics[r["process_type"]] += 1
+    image.user_metrics[process_type] += 1
     image.user_metrics["Images Processed"] += 1
+    image.user_metrics["Time to Complete Last Process"] = time_to_process
     image.save()
     return "Uploaded", 200
 
 
-@app.route("/image/upload/<user_email>", methods=["GET"])
-def get_uploaded_images(user_email):
-    """ Retrieves all uploaded images for specified user
+@app.route("/image/processed/<user_email>/<image_name>/<process_type>",
+           methods=["GET"])
+def get_processed_image(user_email, image_name, process_type):
+    """ Retrieves specified processed image for user
 
     Args:
-        user_email: email of user that has the desired uploaded images
+        user_email: email of user that has the desired processed image
+        image_name: name of image that was processed
+        process_type: type of processing performed on the image
 
     Returns:
-        uploaded_images: dict containing uploaded image keys and strings
+        processed_image: array containing processed image
+
+    """
+    processed_image = {image_name: ''}
+    image = ImageDB.objects.raw({"_id": user_email}).first()
+    processed_info = image.processed_info
+    for dicts in processed_info:
+        if image_name in dicts.keys() and dicts["process_type"] ==\
+                process_type:
+            processed_image[image_name] = dicts[image_name]
+    return jsonify(processed_image)
+
+
+@app.route("/image/metrics/<user_email>", methods=["GET"])
+def get_user_metrics(user_email):
+    """ Retrieves user_metrics dictionary for a specified user
+
+    Args:
+        user_email: email id for the image processing user
+
+    Returns:
+         user_metrics: dict containing information about the number of images
+         uploaded, images processed and their types, and time of last
+         processing for the user
 
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
-    uploaded_images = image.uploaded_images
-    return uploaded_images
+    user_metrics = image.user_metrics
+    return jsonify(user_metrics)
 
 
 def hist_equalization(encoded_img):
@@ -345,15 +427,19 @@ def hist_equalization(encoded_img):
     Returns:
         eq_img: an array for the new image that underwent histogram
         equalization
+        process_time: seconds taken to complete the processing
 
     """
+    start_time = time.monotonic()
     img_buf = decode(encoded_img)
     img = skimage.io.imread(img_buf)
     gs_img = skimage.color.rgb2gray(img)
     eq_img = skimage.exposure.equalize_hist(gs_img)
+    end_time = time.monotonic()
+    process_time = timedelta(seconds=end_time - start_time)
     # viewer = ImageViewer(eq_img)
     # viewer.show()
-    return eq_img
+    return eq_img, process_time
 
 
 def cont_stretching(encoded_img):
@@ -366,13 +452,17 @@ def cont_stretching(encoded_img):
     Returns:
         constr_img: an array for the new image that underwent contrast
         stretching
+        process_time: seconds taken to complete image processing
 
     """
+    start_time = time.monotonic()
     img_buf = decode(encoded_img)
     img = skimage.io.imread(img_buf)
     contstr_img = exposure.rescale_intensity(img, out_range=(150, 200))
+    end_time = time.monotonic()
+    process_time = timedelta(seconds=end_time - start_time)
     # lowers the contrast
-    return contstr_img
+    return contstr_img, process_time
 
 
 def log_compression(encoded_img):
@@ -385,12 +475,16 @@ def log_compression(encoded_img):
     Returns:
         constr_img: an array for the new image that underwent contrast
         stretching
+        process_time: seconds taken to complete image_processing
 
     """
+    start_time = time.monotonic()
     img_buf = decode(encoded_img)
     img = skimage.io.imread(img_buf)
     logcomp_img = skimage.exposure.adjust_log(img, gain=0.5)
-    return logcomp_img
+    end_time = time.monotonic()
+    process_time = timedelta(seconds=end_time - start_time)
+    return logcomp_img, process_time
 
 
 def reverse_video(encoded_img):
@@ -402,12 +496,16 @@ def reverse_video(encoded_img):
 
       Returns:
           inv_img: an array for the new image that underwent inversion
+          process_time: seconds taken to complete image processing
 
       """
+    start_time = time.monotonic()
     img_buf = decode(encoded_img)
     img = skimage.io.imread(img_buf)
     inv_img = skimage.util.invert(img)
-    return inv_img
+    end_time = time.monotonic()
+    process_time = timedelta(seconds=end_time - start_time)
+    return inv_img, process_time
 
 
 def make_hist(img_array):

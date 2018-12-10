@@ -96,18 +96,18 @@ def test_get_format():
 
 def test_validate_image_processed_upload():
     r1 = {"user_email": "name@email.com"}
-    r2 = {"user_email": "name@email.com", "processed_image": "string12"}
-    r3 = {"processed_image": "string123", "process_type": "Reverse Video"}
+    r2 = {"user_email": "name@email.com", "image_string": "string12"}
+    r3 = {"image_string": "string123", "process_type": "Reverse Video"}
 
-    r4 = {"user_email": "name", "image_name": "name.jpg", "processed_image":
+    r4 = {"user_email": "name", "image_name": "name.jpg", "image_string":
           "String345", "process_type": "Histogram Equalization"}
     r5 = {"user_email": "name@email.com", "image_name": 123,
-          "processed_image": "string123", "process_type":
+          "image_string": "string123", "process_type":
           "Histogram Equalization"}
     r6 = {"user_email": "name@email.com", "image_name": "name.jpg",
-          "processed_image": 123, "process_type": "Histogram Equalization"}
+          "image_string": 123, "process_type": "Histogram Equalization"}
     r7 = {"user_email": "name@email.com", "image_name": "name.jpg",
-          "processed_image": "String345", "process_type": "no processing"}
+          "image_string": "String345", "process_type": "no processing"}
 
     with pytest.raises(AttributeError):
         final.validate_image_processed_upload(r1)
@@ -123,3 +123,42 @@ def test_validate_image_processed_upload():
         final.validate_image_processed_upload(r6)
     with pytest.raises(TypeError):
         final.validate_image_processed_upload(r7)
+
+
+def test_process_image():
+    global global_b641
+    histprocess, histtime = final.process_image(global_b641,
+                                                "Histogram Equalization")
+    contprocess, conttime = final.process_image(global_b641,
+                                                "Contrast Stretching")
+    logprocess, logtime = final.process_image(global_b641,
+                                              "Log Compression")
+    reverseprocess, revtime = final.process_image(global_b641,
+                                                  "Reverse Video")
+
+    oghist, oghisttime = final.hist_equalization(global_b641)
+    ogcont, ogconttime = final.cont_stretching(global_b641)
+    oglog, oglogtime = final.log_compression(global_b641)
+    ogreverse, ogrevtime = final.reverse_video(global_b641)
+
+    assert histprocess.all() == oghist.all()
+    assert contprocess.all() == ogcont.all()
+    assert logprocess.all() == oglog.all()
+    assert reverseprocess.all() == ogreverse.all()
+    assert final.process_image("test.jpg", "no process") == ("test.jpg", 0)
+
+
+def test_hist_equalization():
+    assert 1 == 1
+
+
+def test_cont_stretching():
+    assert 1 == 1
+
+
+def test_log_compression():
+    assert 1 == 1
+
+
+def test_reverse_video():
+    assert 1 == 1

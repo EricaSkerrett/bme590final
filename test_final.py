@@ -153,8 +153,8 @@ def test_hist_equalization():
     eq_img = final.hist_equalization(global_b641)[0]
     length = len(eq_img)
     last = eq_img[-1][-1]
-    param = [length, last]
-    assert param == [416, 0.010774177428094655]
+    param = [length, "%.4f" % last]
+    assert param == [416, '0.0108']
 
 
 def test_cont_stretching():

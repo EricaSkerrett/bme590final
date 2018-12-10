@@ -67,6 +67,15 @@ def test_unzip_folder():
     assert 1 == 1
 
 
+@pytest.mark.parametrize("a, expected", [
+    ([{"a": 1}, {"b": 2}], {"a": 1, "b": 2}),
+    ([{"a": 1, "b": 2}, {"c": 3}], {"a": 1, "b": 2, "c": 3}),
+    ([{"a": 1}, {"c": 3}, {"a": 1, "b": 2}], {"a": 1, "b": 2, "c": 3})
+])
+def test_list_to_dict(a, expected):
+    assert final.list_to_dict(a) == expected
+
+
 def test_get_size():
     global global_image1
     global global_b641
@@ -96,18 +105,15 @@ def test_get_format():
 
 def test_validate_image_processed_upload():
     r1 = {"user_email": "name@email.com"}
-    r2 = {"user_email": "name@email.com", "image_string": "string12"}
-    r3 = {"image_string": "string123", "process_type": "Reverse Video"}
+    r2 = {"user_email": "name@email.com", "process_type": "Reverse Video"}
+    r3 = {"image_name": "string123", "process_type": "Reverse Video"}
 
-    r4 = {"user_email": "name", "image_name": "name.jpg", "image_string":
-          "String345", "process_type": "Histogram Equalization"}
-    r5 = {"user_email": "name@email.com", "image_name": 123,
-          "image_string": "string123", "process_type":
+    r4 = {"user_email": "name", "image_name": "name.jpg", "process_type":
           "Histogram Equalization"}
+    r5 = {"user_email": "name@email.com", "image_name": 123,
+          "process_type": "Histogram Equalization"}
     r6 = {"user_email": "name@email.com", "image_name": "name.jpg",
-          "image_string": 123, "process_type": "Histogram Equalization"}
-    r7 = {"user_email": "name@email.com", "image_name": "name.jpg",
-          "image_string": "String345", "process_type": "no processing"}
+          "process_type": "no processing"}
 
     with pytest.raises(AttributeError):
         final.validate_image_processed_upload(r1)
@@ -121,8 +127,6 @@ def test_validate_image_processed_upload():
         final.validate_image_processed_upload(r5)
     with pytest.raises(TypeError):
         final.validate_image_processed_upload(r6)
-    with pytest.raises(TypeError):
-        final.validate_image_processed_upload(r7)
 
 
 def test_process_image():

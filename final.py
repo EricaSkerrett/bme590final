@@ -7,7 +7,7 @@ import matplotlib.image as mpimg
 from matplotlib import pyplot as plt
 import zipfile
 import skimage
-from skimage import exposure
+from skimage import exposure, color
 from skimage.viewer import ImageViewer
 import imghdr
 
@@ -340,7 +340,7 @@ def hist_equalization(encoded_img):
     histogram equalization
 
     Args:
-        encoded_image: base64 string encoding list
+        encoded_img: base64 string encoding list
 
     Returns:
         eq_img: an array for the new image that underwent histogram
@@ -351,9 +351,63 @@ def hist_equalization(encoded_img):
     img = skimage.io.imread(img_buf)
     gs_img = skimage.color.rgb2gray(img)
     eq_img = skimage.exposure.equalize_hist(gs_img)
-    viewer = ImageViewer(eq_img)
-    viewer.show()
+    # viewer = ImageViewer(eq_img)
+    # viewer.show()
     return eq_img
+
+
+def cont_stretching(encoded_img):
+    """ Takes a b64-encoded image and returns new image array after
+    contrast stretching
+
+    Args:
+        encoded_img: base64 string encoding list
+
+    Returns:
+        constr_img: an array for the new image that underwent contrast
+        stretching
+
+    """
+    img_buf = decode(encoded_img)
+    img = skimage.io.imread(img_buf)
+    contstr_img = exposure.rescale_intensity(img, out_range=(150, 200))
+    # lowers the contrast
+    return contstr_img
+
+
+def log_compression(encoded_img):
+    """ Takes a b64-encoded image and returns new image array after
+    log compression
+
+    Args:
+        encoded_img: base64 string encoding list
+
+    Returns:
+        constr_img: an array for the new image that underwent contrast
+        stretching
+
+    """
+    img_buf = decode(encoded_img)
+    img = skimage.io.imread(img_buf)
+    logcomp_img = skimage.exposure.adjust_log(img, gain=0.5)
+    return logcomp_img
+
+
+def reverse_video(encoded_img):
+    """ Takes a b64-encoded image and returns new image array after
+      inverting image
+
+      Args:
+          encoded_img: base64 string encoding list
+
+      Returns:
+          inv_img: an array for the new image that underwent inversion
+
+      """
+    img_buf = decode(encoded_img)
+    img = skimage.io.imread(img_buf)
+    inv_img = skimage.util.invert(img)
+    return inv_img
 
 
 def make_hist(img_array):

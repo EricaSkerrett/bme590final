@@ -393,7 +393,8 @@ def get_processed_image(user_email, image_name, process_type):
     image = ImageDB.objects.raw({"_id": user_email}).first()
     processed_info = image.processed_info
     for dicts in processed_info:
-        if image_name in dicts.keys() and process_type in dicts.keys():
+        if image_name in dicts.keys() and dicts["process_type"] ==\
+                process_type:
             processed_image[image_name] = dicts[image_name]
     return jsonify(processed_image)
 

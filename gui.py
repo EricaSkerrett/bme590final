@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QApplication, QInputDialog, QLineEdit, QLabel, \
     QFileDialog, QTextEdit, QSpinBox, QVBoxLayout,\
-    QComboBox, QGroupBox, QFormLayout
+    QComboBox, QGroupBox, QFormLayout, QErrorMessage
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -285,6 +285,9 @@ class App5(QMainWindow):
         print('Upload New Images')
         self.next = App2()
 
+def error_message(error):
+    error_dialog = QErrorMessage()
+    error_dialog.showMessage('error')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

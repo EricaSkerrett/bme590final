@@ -73,19 +73,30 @@ class App(QMainWindow):
             website = api_host + '/image/user/' + user_email
             r = requests.get(website)
             email = r.json()
-            if email.get("error_message") is None:
-                print(email)
-                self.close()
+            if email.get("error_message") == 'None':
                 self.next = App2()
+                self.close()
             else:
+                print(email)
                 button_reply = QMessageBox.question(
                     self, 'Error Message', email.get("error_message"),
                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if button_reply == QMessageBox.Yes:
                     self.next = App()
                 else:
-                    self.next = App()
+                    self.close()
         self.show()
+
+    def closeEvent(self, event):
+
+        reply = QMessageBox.question(self, 'Message',
+                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class App2(QMainWindow):
@@ -305,7 +316,14 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def download(self):
-        print('Download Images')
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "QFileDialog.getSaveFileName()",
+            "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
+                "TIFF Files(*.tif);; TIFF Files(*.tiff);; PNG Files(*.png)", options=options)
+        if fileName:
+            print(fileName)
 
     @pyqtSlot()
     def new_upload(self):

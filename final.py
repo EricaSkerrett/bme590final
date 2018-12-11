@@ -451,7 +451,10 @@ def image_processed_upload():
 
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
-    processed_image = str(processed_image)
+    processed_image_b64bytes = base64.b64encode(processed_image)
+    # makes array into b64string
+    processed_image_b64string = processed_image_b64bytes.decode("UTF-8")
+    processed_image = processed_image_b64string
     time_to_process = str(time_to_process)
     process_time = datetime.now()
     process_info = {image_no_format: processed_image,

@@ -58,10 +58,10 @@ def init_user_metrics(user_email):
     user_metrics = {"User": user_email,
                     "Images Uploaded": 0,
                     "Images Processed": 0,
-                    "Histogram Equalization": 0,
-                    "Contrast Stretching": 0,
-                    "Log Compression": 0,
-                    "Reverse Video": 0,
+                    "HistogramEqualization": 0,
+                    "ContrastStretching": 0,
+                    "LogCompression": 0,
+                    "ReverseVideo": 0,
                     "Time to Complete Last Process": 0}
     return user_metrics
 
@@ -336,10 +336,10 @@ def validate_image_processed_upload(r):
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
             raise TypeError("image_name must be a string.")
-        elif r["process_type"] != "Histogram Equalization"\
-                and r["process_type"] != "Contrast Stretching"\
-                and r["process_type"] != "Log Compression" \
-                and r["process_type"] != "Reverse Video":
+        elif r["process_type"] != "HistogramEqualization"\
+                and r["process_type"] != "ContrastStretching"\
+                and r["process_type"] != "LogCompression" \
+                and r["process_type"] != "ReverseVideo":
             raise TypeError("process_type must be one of the 4 specified.")
     else:
         raise AttributeError("Post must be dict with user_email, image_name, "
@@ -358,13 +358,13 @@ def process_image(image_string, process_type):
         process_time: seconds taken for processing to be completed
 
     """
-    if process_type == "Histogram Equalization":
+    if process_type == "HistogramEqualization":
         processed_image, process_time = hist_equalization(image_string)
-    elif process_type == "Contrast Stretching":
+    elif process_type == "ContrastStretching":
         processed_image, process_time = cont_stretching(image_string)
-    elif process_type == "Log Compression":
+    elif process_type == "LogCompression":
         processed_image, process_time = log_compression(image_string)
-    elif process_type == "Reverse Video":
+    elif process_type == "ReverseVideo":
         processed_image, process_time = reverse_video(image_string)
     else:
         processed_image = image_string
@@ -423,14 +423,16 @@ def get_processed_image(user_email, image_name, process_type):
                          key for a string of the processed image array
 
     """
-    image_key = image_name.split('.')[0]
-    processed_image = {image_key: ''}
+    image_list = image_name.split('.')
+    image_key = image_list[0]
+    processed_image = {}
     image = ImageDB.objects.raw({"_id": user_email}).first()
     processed_info = image.processed_info
     for dicts in processed_info:
-        if image_key in dicts.keys() and dicts["process_type"] ==\
-                process_type:
-            processed_image[image_key] = dicts[image_key]
+        images = dicts.keys()
+        processing = dicts["process_type"]
+        if (image_key in images) and (processing == process_type):
+            processed_image.update({image_key: dicts[image_key]})
     return jsonify(processed_image)
 
 
@@ -549,5 +551,5 @@ def make_hist(img_array):
 
 
 if __name__ == "__main__":
-    # app.run(host="127.0.0.1")
-    app.run(host="0.0.0.0")
+    app.run(host="127.0.0.1")
+    # app.run(host="0.0.0.0")

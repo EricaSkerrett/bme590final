@@ -170,14 +170,34 @@ class App3(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Step 2: Upload Image(s)!')
-        # Create widget
+        # if zip
+        self.scrolldown_menu()  # user define unzipped images
+        # else
+        self.display_image()  # display single image
+
+        self.button_upload()
+        self.show()
+
+    def display_image(self):
         label = QLabel(self)
         pixmap = QPixmap(os.path.join(self.path, self.filename))
         pixmap2 = pixmap.scaledToWidth(400)
         label.setPixmap(pixmap2)
         label.setGeometry(120, 20, 640, 280)
-        self.button_upload()
-        self.show()
+
+    def scrolldown_menu(self):
+        label = QLabel("List of Images", self)
+        test_list = ["test user 1 ", "test user 2",
+                     "test user 3", "test user 4"]
+        combo = QComboBox(self)
+        for i in test_list:
+            combo.addItem(i)
+        combo.move(250, 150)
+        label.setGeometry(150, 20, 640, 280)
+        combo.activated[str].connect(self.on_activated)
+
+    def on_activated(self, text):
+        print(text)
 
     def button_upload(self):
         button = QPushButton('Upload Image', self)

@@ -6,10 +6,7 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QComboBox, QGroupBox, QFormLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
-import requests
-
-
-api_host = "http://vcm-7311.vm.duke.edu:5000"
+import client
 
 
 class App(QMainWindow):
@@ -56,10 +53,7 @@ class App(QMainWindow):
         user_email, ok_pressed = QInputDialog.getText(
             self, "Account Information", "User Email:", QLineEdit.Normal, "")
         if ok_pressed and user_email != '':
-            data = {
-                "user_email": user_email
-            }
-            r = requests.post(api_host + '/image/user', json=data)
+            r = client.post_create_user(user_email)
             print(user_email)
             self.next = App2()
             self.close()
@@ -70,9 +64,7 @@ class App(QMainWindow):
         user_email, ok_pressed = QInputDialog.getText(
             self, "Account Information", "User Email:", QLineEdit.Normal, "")
         if ok_pressed and user_email != '':
-            website = api_host + '/image/user/' + user_email
-            r = requests.get(website)
-            email = r.json()
+            email = client.get_returning_user(user_email)
             if email.get("error_message") == 'None':
                 self.next = App2()
                 self.close()
@@ -90,7 +82,7 @@ class App(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -142,7 +134,7 @@ class App2(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -195,7 +187,7 @@ class App3(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -296,7 +288,7 @@ class App4(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -374,7 +366,7 @@ class App5(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:

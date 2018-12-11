@@ -2,7 +2,8 @@ import pytest
 import final
 
 # uses global var to avoid reopening files
-global_image1 = "test_images/capy.jpg"
+global_image1 = "capy.jpg"
+global_image2 = "capy2.png"
 global_open1 = open(global_image1, "rb")
 global_b641 = final.base64.b64encode(global_open1.read())
 
@@ -24,18 +25,18 @@ def test_validate_create_user():
     ("test_user@gmail.com", {"User": "test_user@gmail.com",
                              "Images Uploaded": 0,
                              "Images Processed": 0,
-                             "Histogram Equalization": 0,
-                             "Contrast Stretching": 0,
-                             "Log Compression": 0,
-                             "Reverse Video": 0,
+                             "HistogramEqualization": 0,
+                             "ContrastStretching": 0,
+                             "LogCompression": 0,
+                             "ReverseVideo": 0,
                              "Time to Complete Last Process": 0}),
     ("email_test2@duke.edu", {"User": "email_test2@duke.edu",
                               "Images Uploaded": 0,
                               "Images Processed": 0,
-                              "Histogram Equalization": 0,
-                              "Contrast Stretching": 0,
-                              "Log Compression": 0,
-                              "Reverse Video": 0,
+                              "HistogramEqualization": 0,
+                              "ContrastStretching": 0,
+                              "LogCompression": 0,
+                              "ReverseVideo": 0,
                               "Time to Complete Last Process": 0})
 ])
 def test_init_user_metrics(a, expected):
@@ -61,6 +62,22 @@ def test_validate_image_upload():
 
 def test_image_encoder():
     assert 1 == 1
+
+
+def test_image_parser():
+    global global_image1
+    global global_image2
+    test_image_list1 = [global_image1]
+    test_image_list2 = [global_image1, global_image2]
+    test_image_list3 = [global_image1, global_image2, 'test.gif']
+    image1_b64_string = final.image_encoder(global_image1).decode("utf-8")
+    image2_b64_string = final.image_encoder(global_image2).decode("utf-8")
+
+    assert final.image_parser(test_image_list1) == {"capy": image1_b64_string}
+    assert final.image_parser(test_image_list2) == {"capy": image1_b64_string,
+                                                    "capy2": image2_b64_string}
+    assert final.image_parser(test_image_list3) == {"capy": image1_b64_string,
+                                                    "capy2": image2_b64_string}
 
 
 def test_unzip_folder():
@@ -94,23 +111,24 @@ def test_decode():
     param = [first, length, last]
     assert param == [132, 416, 24]
 
-    # def test_get_format():
-    # global global_image1
-    # global global_b641
-    # name_dict = {global_image1: global_b641}
-    # format_dict = final.get_format(name_dict)
-    # assert format_dict == {global_image1: "jpeg"}
+
+def test_get_format():
+    global global_image1
+    global global_b641
+    name_dict = {global_image1: global_b641}
+    format_dict = final.get_format(name_dict)
+    assert format_dict == {global_image1: "jpeg"}
 
 
 def test_validate_image_processed_upload():
     r1 = {"user_email": "name@email.com"}
-    r2 = {"user_email": "name@email.com", "process_type": "Reverse Video"}
-    r3 = {"image_name": "string123", "process_type": "Reverse Video"}
+    r2 = {"user_email": "name@email.com", "process_type": "ReverseVideo"}
+    r3 = {"image_name": "string123", "process_type": "ReverseVideo"}
 
     r4 = {"user_email": "name", "image_name": "name.jpg", "process_type":
-          "Histogram Equalization"}
+          "HistogramEqualization"}
     r5 = {"user_email": "name@email.com", "image_name": 123,
-          "process_type": "Histogram Equalization"}
+          "process_type": "HistogramEqualization"}
     r6 = {"user_email": "name@email.com", "image_name": "name.jpg",
           "process_type": "no processing"}
 
@@ -131,13 +149,13 @@ def test_validate_image_processed_upload():
 def test_process_image():
     global global_b641
     histprocess, histtime = final.process_image(global_b641,
-                                                "Histogram Equalization")
+                                                "HistogramEqualization")
     contprocess, conttime = final.process_image(global_b641,
-                                                "Contrast Stretching")
+                                                "ContrastStretching")
     logprocess, logtime = final.process_image(global_b641,
-                                              "Log Compression")
+                                              "LogCompression")
     reverseprocess, revtime = final.process_image(global_b641,
-                                                  "Reverse Video")
+                                                  "ReverseVideo")
 
     oghist, oghisttime = final.hist_equalization(global_b641)
     ogcont, ogconttime = final.cont_stretching(global_b641)

@@ -92,17 +92,61 @@ def post_processed_image(user_email, image_name, process_type):
     return r
 
 
+def get_processed_image(user_email, image_name, process_type):
+    """ Makes GET request to /image/processed/<user_email>/<image_name>/
+        <process_type>
+
+    Args:
+        user_email: user email ID
+        image_name: string, name of processed image to be retrieved
+        process_type: string containing type of processing performed
+
+    Returns:
+        processed_image: dict containing image name key with a value of
+                         a string-type array of the processed image data
+
+    """
+    website = api_host + '/image/processed/' + user_email + '/' + image_name\
+        + '/' + process_type
+    r = requests.get(website)
+    processed_image = r.json()
+    return processed_image
+
+
+def get_user_metrics(user_email):
+    """ Makes GET request to /image/metrics/<user_email>
+
+    Args:
+        user_email: user email ID
+
+    Returns:
+        user_metrics: dictionary containing relevant usage metrics for user
+
+    """
+    website = api_host + '/image/metrics/' + user_email
+    r = requests.get(website)
+    user_metrics = r.json()
+    return user_metrics
+
+
 if __name__ == "__main__":
-    post1 = post_create_user("sarah.putney@duke.edu")
+    post1 = post_create_user("test3@duke.edu")
     email = get_returning_user("sarah.putney@duke.edu")
-    post2 = post_uploaded_images("sarah.putney@duke.edu",
-                                 ["test_images/capy.jpg"])
+    post2 = post_uploaded_images("test3@duke.edu",
+                                 ["capy.jpg",
+                                  "capy2.png"])
     uploads = get_uploaded_images("sarah.putney@duke.edu")
-    post3 = post_processed_image("sarah.putney@duke.edu",
-                                 "test_images/capy.jpg",
-                                 "Histogram Equalization")
+    post3 = post_processed_image("test3@duke.edu",
+                                 "capy.jpg",
+                                 "LogCompression")
+    processed_image = get_processed_image("test3@duke.edu",
+                                          "capy.jpg",
+                                          "LogCompression")
+    user_metrics = get_user_metrics("test3@duke.edu")
     print(post1)
     print(email)
     print(post2)
     print(uploads)
     print(post3)
+    print(processed_image)
+    print(user_metrics)

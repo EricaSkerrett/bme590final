@@ -32,7 +32,7 @@ def validate_create_user(r):
     Args:
         r: dictionary containing user_email key for posting to database
 
-    Returns:
+    Raises:
         AttributeError: when post does not contain proper key
         TypeError: when user_email key is not an email (does not have an @)
 
@@ -156,7 +156,9 @@ def image_encoder(file_list):
             file_list.append(image_names)
     for image in file_list:
         with open(image, "rb") as image_file:
-            base64_string = base64.b64encode(image_file.read())
+            base64_bytes = base64.b64encode(image_file.read())
+            base64_string = base64_bytes.decode("utf-8")
+            print(base64_string)
             image_list = image.split('.')
             image_name = image_list[0]
             image_format = '.' + image_list[1]
@@ -312,7 +314,7 @@ def validate_image_processed_upload(r):
         r: dictionary containing user_email, image_name, image_string, and
            process_types keys
 
-    Returns:
+    Raises:
          AttributeError: when r does not contain required keys
          TypeError: when user_email is not a valid email,
                     when process_type is not a specified processing type,
@@ -373,19 +375,21 @@ def image_processed_upload():
     r = request.get_json()
     validate_image_processed_upload(r)
     image_name = r["image_name"]
+    image_list = image_name.split('.')
+    image_no_format = image_list[0]
     process_type = r["process_type"]
 
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
-    dict_formats = image.image_formats
-    uploaded_formats = list_to_dict(dict_formats)
-    complete_name = image_name + uploaded_formats[image_name]
-    isolated_image = image_encoder([complete_name])
-    image_string = isolated_image[image_name]
+    with open(image_name, "rb") as image_file:
+        image_string = base64.b64encode(image_file.read())
 
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
+
+    processed_image = str(processed_image)
+    time_to_process = str(time_to_process)
     process_time = datetime.now()
-    process_info = {image_name: processed_image,
+    process_info = {image_no_format: processed_image,
                     "process_type": process_type,
                     "process_time": process_time}
     image.processed_info.append(process_info)

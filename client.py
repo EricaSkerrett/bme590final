@@ -1,7 +1,7 @@
 import requests
 
-# api_host = "http://127.0.0.1:5000"
-api_host = "http://vcm-7311.vm.duke.edu:5000"
+api_host = "http://127.0.0.1:5000"
+# api_host = "http://vcm-7311.vm.duke.edu:5000"
 
 
 def post_create_user(user_email):
@@ -73,6 +73,40 @@ def get_uploaded_images(user_email):
     return uploads
 
 
+def get_upload_time(user_email):
+    """ Makes GET request to /image/upload_time/<user_email>
+
+    Args:
+        user_email: user email ID
+
+    Returns:
+        upload_times: json containing image names as keys for the upload
+                      times for those respective images
+
+    """
+    website = api_host + '/image/upload_time/' + user_email
+    r = requests.get(website)
+    upload_times = r.json()
+    return upload_times
+
+
+def get_upload_sizes(user_email):
+    """ Makes GET request to /image/upload_size/<user_email>
+
+    Args:
+        user_email: user email ID
+
+    Returns:
+        upload_sizes: json containing image names as keys for the image
+                      sizes for those respective images
+
+    """
+    website = api_host + '/image/upload_size/' + user_email
+    r = requests.get(website)
+    upload_sizes = r.json()
+    return upload_sizes
+
+
 def post_processed_image(user_email, image_name, process_type):
     """ Makes POST request to /image/processed/upload
 
@@ -103,7 +137,8 @@ def get_processed_image(user_email, image_name, process_type):
 
     Returns:
         processed_image: dict containing image name key with a value of
-                         a string-type array of the processed image data
+                         a string-type array of the processed image data,
+                         process_type key, and process_time key
 
     """
     website = api_host + '/image/processed/' + user_email + '/' + image_name\
@@ -130,23 +165,14 @@ def get_user_metrics(user_email):
 
 
 if __name__ == "__main__":
-    post1 = post_create_user("test3@duke.edu")
-    email = get_returning_user("sarah.putney@duke.edu")
-    post2 = post_uploaded_images("test3@duke.edu",
-                                 ["capy.jpg",
-                                  "capy2.png"])
-    uploads = get_uploaded_images("sarah.putney@duke.edu")
-    post3 = post_processed_image("test3@duke.edu",
-                                 "capy.jpg",
-                                 "LogCompression")
+    post_create_user("test3@duke.edu")
+    post_uploaded_images("test3@duke.edu", ["capy.jpg", "capy2.png"])
+    upload_times = get_upload_time("test3@duke.edu")
+    print(upload_times)
+    upload_sizes = get_upload_sizes("test3@duke.edu")
+    print(upload_sizes)
+    post_processed_image("test3@duke.edu", "capy.jpg", "LogCompression")
     processed_image = get_processed_image("test3@duke.edu",
                                           "capy.jpg",
                                           "LogCompression")
-    user_metrics = get_user_metrics("test3@duke.edu")
-    print(post1)
-    print(email)
-    print(post2)
-    print(uploads)
-    print(post3)
     print(processed_image)
-    print(user_metrics)

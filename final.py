@@ -10,7 +10,7 @@ import zipfile
 import skimage
 from skimage import exposure, color
 from skimage.viewer import ImageViewer
-# import imghdr
+import imghdr
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -114,7 +114,7 @@ def validate_image_upload(r):
         Args:
             r: dictionary containing user_email and uploaded_images keys
 
-        Returns:
+        Raises:
             AttributeError: when r does not contain the 2 required keys
             TypeError: when user_email is not an email/when keys in
                        uploaded_images does not end in .jpg, .tiff,
@@ -126,8 +126,8 @@ def validate_image_upload(r):
             raise TypeError("user_email must be a valid email.")
         elif r["uploaded_images"] is not None:
             for image in r["uploaded_images"]:
-                if (".jpg" or ".png" or ".tiff" or ".zip") \
-                 not in image:
+                if ".jpg" not in image and ".png" not in image and ".tiff" \
+                        not in image and ".zip" not in image:
                     raise TypeError("Uploaded image must be JPG,"
                                     " PNG, or TIFF.")
     else:
@@ -135,8 +135,23 @@ def validate_image_upload(r):
                              "uploaded_images keys.")
 
 
-def image_encoder(file_list):
-    """ Encodes user-uploaded images in a base64 string for saving to db
+def image_encoder(image):
+    """ Encodes image into base64 type bytes
+
+    Args:
+        image: the name of the image to be encoded
+
+    Returns:
+         base_64_string: the base64 type bytes representing the image
+
+    """
+    with open(image, "rb") as image_file:
+        base64_bytes = base64.b64encode(image_file.read())
+    return base64_bytes
+
+
+def image_parser(file_list):
+    """ Parses, encodes, and finds formats for uploaded images
 
     Args:
         file_list: list containing strings of file names or
@@ -144,27 +159,26 @@ def image_encoder(file_list):
 
     Returns:
         image_dict: dictionary of images and their encoded base64 string
-        format_dict: dictionary of images and their formats
+        # format_dict: dictionary of images and their formats
 
     """
     image_dict = {}
-    format_dict = {}
     for file in file_list:
         if file.endswith('.zip'):
             image_names = unzip_folder(file)
             file_list.remove(file)
             file_list.append(image_names)
     for image in file_list:
-        with open(image, "rb") as image_file:
-            base64_bytes = base64.b64encode(image_file.read())
+        if image.endswith('.jpg') or image.endswith('.png') or image\
+                .endswith('.tiff'):
+            base64_bytes = image_encoder(image)
             base64_string = base64_bytes.decode("utf-8")
-            print(base64_string)
             image_list = image.split('.')
             image_name = image_list[0]
-            image_format = '.' + image_list[1]
             image_dict.update({image_name: base64_string})
-            format_dict.update({image_name: image_format})
-    return image_dict, format_dict
+        else:
+            file_list.remove(image)
+    return image_dict
 
 
 def unzip_folder(zipped_folder):
@@ -197,8 +211,9 @@ def image_upload():
     """
     r = request.get_json()
     validate_image_upload(r)
-    image_dict, image_format = image_encoder(r["uploaded_images"])
+    image_dict = image_parser(r["uploaded_images"])
     image_size = get_size(image_dict)
+    image_format = get_format(image_dict)
     upload_time = datetime.now()
 
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
@@ -241,14 +256,8 @@ def get_uploaded_images(user_email):
 
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
-    image_formats = image.image_formats
-    formats = list_to_dict(image_formats)
-    image_names = []
-    for keys in formats.keys():
-        image_name = keys + formats[keys]
-        image_names.append(image_name)
-    uploaded_images, upload_formats = image_encoder(image_names)
-    print(uploaded_images)
+    uploads = image.uploaded_images
+    uploaded_images = list_to_dict(uploads)
     return jsonify(uploaded_images)
 
 
@@ -287,24 +296,25 @@ def decode(encoded_image):
     img_buf = io.BytesIO(img_bytes)
     return img_buf
 
-    # def get_format(image_dict):
-    # """ Opens images from dictionary to find image format
 
-    # Args:
-    # image_dict: dictionary containing base64 values and image name keys
+def get_format(image_dict):
+    """ Opens images from dictionary to find image format
 
-    # Returns:
-    # format_dict: dictionary containing image format values and
-    # image name keys. Formats are strings
+    Args:
+        image_dict: dictionary containing base64 values and image name keys
 
-    # """
-    # image_name = image_dict.keys()
-    # format_dict = {}
-    # for image in image_name:
-    # image_buf = decode(image_dict[image])
-    # im_format = imghdr.what(image_buf)
-    # format_dict.update({image: im_format})
-    # return format_dict
+    Returns:
+        format_dict: dictionary containing image format values and
+        image name keys. Formats are strings
+
+    """
+    image_name = image_dict.keys()
+    format_dict = {}
+    for image in image_name:
+        image_buf = decode(image_dict[image])
+        im_format = imghdr.what(image_buf)
+        format_dict.update({image: im_format})
+    return format_dict
 
 
 def validate_image_processed_upload(r):
@@ -326,8 +336,10 @@ def validate_image_processed_upload(r):
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
             raise TypeError("image_name must be a string.")
-        elif r["process_type"] != ("Histogram Equalization" or "\
-        Contrast Stretching" or "Log Compression" or "Reverse Video"):
+        elif r["process_type"] != "Histogram Equalization"\
+                and r["process_type"] != "Contrast Stretching"\
+                and r["process_type"] != "Log Compression" \
+                and r["process_type"] != "Reverse Video":
             raise TypeError("process_type must be one of the 4 specified.")
     else:
         raise AttributeError("Post must be dict with user_email, image_name, "
@@ -375,17 +387,13 @@ def image_processed_upload():
     r = request.get_json()
     validate_image_processed_upload(r)
     image_name = r["image_name"]
-    image_list = image_name.split('.')
-    image_no_format = image_list[0]
+    image_no_format = image_name.split('.')[0]
     process_type = r["process_type"]
-
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
-    with open(image_name, "rb") as image_file:
-        image_string = base64.b64encode(image_file.read())
+    image_string = image_encoder(image_name)
 
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
-
     processed_image = str(processed_image)
     time_to_process = str(time_to_process)
     process_time = datetime.now()
@@ -411,16 +419,18 @@ def get_processed_image(user_email, image_name, process_type):
         process_type: type of processing performed on the image
 
     Returns:
-        processed_image: array containing processed image
+        processed_image: JSONified dict containing the image name as the
+                         key for a string of the processed image array
 
     """
-    processed_image = {image_name: ''}
+    image_key = image_name.split('.')[0]
+    processed_image = {image_key: ''}
     image = ImageDB.objects.raw({"_id": user_email}).first()
     processed_info = image.processed_info
     for dicts in processed_info:
-        if image_name in dicts.keys() and dicts["process_type"] ==\
+        if image_key in dicts.keys() and dicts["process_type"] ==\
                 process_type:
-            processed_image[image_name] = dicts[image_name]
+            processed_image[image_key] = dicts[image_key]
     return jsonify(processed_image)
 
 

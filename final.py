@@ -260,6 +260,30 @@ def get_uploaded_images(user_email):
     return jsonify(uploaded_images)
 
 
+@app.route("/image/upload_time/<user_email>", methods=["GET"])
+def get_upload_time(user_email):
+    """ Retrieves user's upload timestamps for all uploaded images
+
+    Args:
+        user_email: user's email ID
+
+    Returns:
+        upload_times: dict containing image_name as keys and upload_time
+                      for image as its value
+
+    """
+    user_email = str(user_email)
+    image = ImageDB.objects.raw({"_id": user_email}).first()
+    upload_times = {}
+    uploads = image.uploaded_images
+    times = image.upload_times
+    for i in range(len(uploads)):
+        upload_time = times[i]
+        for keys in uploads[i].keys():
+            upload_times.update({keys: upload_time})
+    return jsonify(upload_times)
+
+
 def get_size(image_dict):
     """ Reads images from dictionary to find image size
 
@@ -410,7 +434,7 @@ def image_processed_upload():
 @app.route("/image/processed/<user_email>/<image_name>/<process_type>",
            methods=["GET"])
 def get_processed_image(user_email, image_name, process_type):
-    """ Retrieves specified processed image for user
+    """ Retrieves specified processed image's info for user
 
     Args:
         user_email: email of user that has the desired processed image
@@ -419,7 +443,8 @@ def get_processed_image(user_email, image_name, process_type):
 
     Returns:
         processed_image: JSONified dict containing the image name as the
-                         key for a string of the processed image array
+                         key for a string of the processed image array,
+                         the image process_type, and image process_time
 
     """
     image_list = image_name.split('.')
@@ -431,7 +456,7 @@ def get_processed_image(user_email, image_name, process_type):
         images = dicts.keys()
         processing = dicts["process_type"]
         if (image_key in images) and (processing == process_type):
-            processed_image.update({image_key: dicts[image_key]})
+            processed_image = dicts
     return jsonify(processed_image)
 
 
@@ -550,5 +575,5 @@ def make_hist(img_array):
 
 
 if __name__ == "__main__":
-    # app.run(host="127.0.0.1")
-    app.run(host="0.0.0.0")
+    app.run(host="127.0.0.1")
+    # app.run(host="0.0.0.0")

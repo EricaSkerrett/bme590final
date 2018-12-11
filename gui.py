@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QApplication, QInputDialog, QLineEdit, QLabel, \
     QFileDialog, QTextEdit, QSpinBox, QVBoxLayout,\
-    QComboBox, QGroupBox, QFormLayout, QErrorMessage
+    QComboBox, QGroupBox, QFormLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
 import requests
@@ -73,10 +73,19 @@ class App(QMainWindow):
             website = api_host + '/image/user/' + user_email
             r = requests.get(website)
             email = r.json()
-            print(user_email)
-            self.close()
-            self.next = App2()
-            return email
+            if email.get("error_message") is None:
+                print(email)
+                self.close()
+                self.next = App2()
+            else:
+                button_reply = QMessageBox.question(
+                    self, 'Error Message', email.get("error_message"),
+                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if button_reply == QMessageBox.Yes:
+                    self.next = App()
+                else:
+                    self.next = App()
+        self.show()
 
 
 class App2(QMainWindow):
@@ -302,11 +311,6 @@ class App5(QMainWindow):
     def new_upload(self):
         print('Upload New Images')
         self.next = App2()
-
-
-def error_message(error):
-    error_dialog = QErrorMessage()
-    error_dialog.showMessage(error)
 
 
 if __name__ == '__main__':

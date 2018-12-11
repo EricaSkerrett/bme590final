@@ -9,6 +9,12 @@ from PyQt5.QtGui import QIcon, QPixmap
 import client
 
 
+global_user_email = ""
+global_image_name = []
+global_upload_images = []
+global_process_type = ""
+
+
 class App(QMainWindow):
 
     def __init__(self):
@@ -53,11 +59,11 @@ class App(QMainWindow):
         user_email, ok_pressed = QInputDialog.getText(
             self, "Account Information", "User Email:", QLineEdit.Normal, "")
         if ok_pressed and user_email != '':
-            r = client.post_create_user(user_email)
-            print(user_email)
+            client.post_create_user(user_email)
+            global global_user_email
+            global_user_email = user_email
             self.next = App2()
             self.close()
-            return r
 
     @pyqtSlot()
     def get_user(self):
@@ -80,11 +86,9 @@ class App(QMainWindow):
                     self.close()
 
     def close_event(self, event):
-
         reply = QMessageBox.question(
             self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
         if reply == QMessageBox.Yes:
             event.accept()
         else:
@@ -162,11 +166,10 @@ class App3(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Step 2: Upload Image(s)!')
-        # if zip
-        self.scrolldown_menu()  # user define unzipped images
-        # else
-        self.display_image()  # display single image
-
+        if ".zip" in self.filename:
+            self.scrolldown_menu()  # user define unzipped images
+        else:
+            self.display_image()  # display single image
         self.button_upload()
         self.show()
 
@@ -384,7 +387,6 @@ class App5(QMainWindow):
         self.next = App2()
 
     def close_event(self, event):
-
         reply = QMessageBox.question(
             self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)

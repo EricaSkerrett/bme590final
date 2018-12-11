@@ -94,13 +94,12 @@ def test_decode():
     param = [first, length, last]
     assert param == [132, 416, 24]
 
-
-def test_get_format():
-    global global_image1
-    global global_b641
-    name_dict = {global_image1: global_b641}
-    format_dict = final.get_format(name_dict)
-    assert format_dict == {global_image1: "jpeg"}
+    # def test_get_format():
+    # global global_image1
+    # global global_b641
+    # name_dict = {global_image1: global_b641}
+    # format_dict = final.get_format(name_dict)
+    # assert format_dict == {global_image1: "jpeg"}
 
 
 def test_validate_image_processed_upload():

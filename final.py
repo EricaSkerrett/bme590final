@@ -284,6 +284,25 @@ def get_upload_time(user_email):
     return jsonify(upload_times)
 
 
+@app.route("/image/upload_size/<user_email>", methods=["GET"])
+def get_upload_sizes(user_email):
+    """ Retrieves user's upload sizes for all uploaded images
+
+    Args:
+        user_email: user's email ID
+
+    Returns:
+         upload_sizes: json containing image_name as keys and
+                       size of image as its value
+
+    """
+    user_email = str(user_email)
+    image = ImageDB.objects.raw({"_id": user_email}).first()
+    size_dicts = image.image_size
+    upload_sizes = list_to_dict(size_dicts)
+    return jsonify(upload_sizes)
+
+
 def get_size(image_dict):
     """ Reads images from dictionary to find image size
 

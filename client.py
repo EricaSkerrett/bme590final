@@ -90,6 +90,23 @@ def get_upload_time(user_email):
     return upload_times
 
 
+def get_upload_sizes(user_email):
+    """ Makes GET request to /image/upload_size/<user_email>
+
+    Args:
+        user_email: user email ID
+
+    Returns:
+        upload_sizes: json containing image names as keys for the image
+                      sizes for those respective images
+
+    """
+    website = api_host + '/image/upload_size/' + user_email
+    r = requests.get(website)
+    upload_sizes = r.json()
+    return upload_sizes
+
+
 def post_processed_image(user_email, image_name, process_type):
     """ Makes POST request to /image/processed/upload
 
@@ -152,6 +169,8 @@ if __name__ == "__main__":
     post_uploaded_images("test3@duke.edu", ["capy.jpg", "capy2.png"])
     upload_times = get_upload_time("test3@duke.edu")
     print(upload_times)
+    upload_sizes = get_upload_sizes("test3@duke.edu")
+    print(upload_sizes)
     post_processed_image("test3@duke.edu", "capy.jpg", "LogCompression")
     processed_image = get_processed_image("test3@duke.edu",
                                           "capy.jpg",

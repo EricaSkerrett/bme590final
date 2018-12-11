@@ -11,6 +11,7 @@ import skimage
 from skimage import exposure, color
 from skimage.viewer import ImageViewer
 import imghdr
+import scipy
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -171,13 +172,27 @@ def image_parser(file_list):
         if image.endswith('.jpg') or image.endswith('.png') or image\
                 .endswith('.tiff'):
             base64_bytes = image_encoder(image)
-            base64_string = base64_bytes.decode("utf-8")
+            base64_string = base64_bytes.decode("UTF-8")
             image_list = image.split('.')
             image_name = image_list[0]
             image_dict.update({image_name: base64_string})
         else:
             file_list.remove(image)
     return image_dict
+
+
+def b64string_encoder(b64string):
+    """ Encodes string base64 type into bytes base64 type
+
+    Args:
+        b64string: the string base64 of an image
+
+    Returns:
+         b64bytes: the bytes base64 type
+
+    """
+    b64bytes = b64string.encode("UTF-8")
+    return b64bytes
 
 
 def unzip_folder(zipped_folder):

@@ -7,11 +7,11 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
 import client
+import final
 
 
 global_user_email = ""
-global_image_name = []
-global_upload_images = []
+global_image_dict = {}
 global_process_type = ""
 
 
@@ -167,7 +167,7 @@ class App3(QMainWindow):
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.statusBar().showMessage('Step 2: Upload Image(s)!')
         if ".zip" in self.filename:
-            self.scrolldown_menu()  # user define unzipped images
+            self.scroll_down_menu()  # user define unzipped images
         else:
             self.display_image()  # display single image
         self.button_upload()
@@ -180,12 +180,17 @@ class App3(QMainWindow):
         label.setPixmap(pixmap2)
         label.setGeometry(120, 20, 640, 280)
 
-    def scrolldown_menu(self):
+    def scroll_down_menu(self):
+        global global_image_dict
+        global_image_dict = final.image_parser(self.path + "/" + self.filename)
+
         label = QLabel("List of Images", self)
-        test_list = ["test user 1 ", "test user 2",
-                     "test user 3", "test user 4"]
+        # image_list = [
+        #     "test user 1 ", "test user 2",
+        #     "test user 3", "test user 4"]
+        image_list = global_image_dict.keys()
         combo = QComboBox(self)
-        for i in test_list:
+        for i in image_list:
             combo.addItem(i)
         combo.move(250, 150)
         label.setGeometry(150, 20, 640, 280)

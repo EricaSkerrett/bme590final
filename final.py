@@ -159,7 +159,6 @@ def image_parser(file_list):
 
     Returns:
         image_dict: dictionary of images and their encoded base64 string
-        # format_dict: dictionary of images and their formats
 
     """
     image_dict = {}
@@ -551,5 +550,5 @@ def make_hist(img_array):
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1")
-    # app.run(host="0.0.0.0")
+    # app.run(host="127.0.0.1")
+    app.run(host="0.0.0.0")

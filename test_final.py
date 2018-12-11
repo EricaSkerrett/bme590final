@@ -6,6 +6,7 @@ global_image1 = "capy.jpg"
 global_image2 = "capy2.png"
 global_open1 = open(global_image1, "rb")
 global_b641 = final.base64.b64encode(global_open1.read())
+global_b64_string1 = global_b641.decode("UTF-8")
 
 
 def test_validate_create_user():
@@ -61,7 +62,17 @@ def test_validate_image_upload():
 
 
 def test_image_encoder():
-    assert 1 == 1
+    global global_image1
+    global global_b641
+    bytes = final.image_encoder(global_image1)
+    assert bytes == global_b641
+
+
+def test_b64string_encoder():
+    global global_b64_string1
+    b64_bytes = final.b64string_encoder(global_b64_string1)
+    type_var = type(b64_bytes)
+    assert type_var == bytes
 
 
 def test_image_parser():

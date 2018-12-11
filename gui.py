@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QApplication, QInputDialog, QLineEdit, QLabel, \
     QFileDialog, QTextEdit, QSpinBox, QVBoxLayout,\
-    QComboBox, QGroupBox, QFormLayout, QErrorMessage
+    QComboBox, QGroupBox, QFormLayout, QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QIcon, QPixmap
 import requests
@@ -61,8 +61,8 @@ class App(QMainWindow):
             }
             r = requests.post(api_host + '/image/user', json=data)
             print(user_email)
-            self.close()
             self.next = App2()
+            self.close()
             return r
 
     @pyqtSlot()
@@ -73,10 +73,30 @@ class App(QMainWindow):
             website = api_host + '/image/user/' + user_email
             r = requests.get(website)
             email = r.json()
-            print(user_email)
-            self.close()
-            self.next = App2()
-            return email
+            if email.get("error_message") == 'None':
+                self.next = App2()
+                self.close()
+            else:
+                print(email)
+                button_reply = QMessageBox.question(
+                    self, 'Error Message', email.get("error_message"),
+                    QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if button_reply == QMessageBox.Yes:
+                    self.next = App()
+                    self.close()
+                else:
+                    self.close()
+
+    def close_event(self, event):
+
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class App2(QMainWindow):
@@ -114,13 +134,25 @@ class App2(QMainWindow):
             "All Files (*)", options=options)
         if file_name:
             print(file_name)
+            self.close()
             self.next = App3(file_name)
         else:
             print("Warning: Empty")
 
+    def close_event(self, event):
 
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 # this will page will display image and choose images to upload.
 # this for now only works for one image
+
+
 class App3(QMainWindow):
 
     def __init__(self, filename=""):
@@ -155,9 +187,21 @@ class App3(QMainWindow):
         button.clicked.connect(self.next_window)
 
     def next_window(self):
+        self.close()
         self.next = App4(self.path, self.filename)
     # place holder for zip file scroll down menu
     # def list_image(self)
+
+    def close_event(self, event):
+
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class App4(QMainWindow):
@@ -221,29 +265,44 @@ class App4(QMainWindow):
     @pyqtSlot()
     def histogram(self):
         print('Histogram Equalization')
+        self.close()
         self.next = App5()
         # place holder for get and post request
 
     @pyqtSlot()
     def contrast(self):
         print('Contrast Stretching')
+        self.close()
         self.next = App5()
         # place holder for get and post request
 
     @pyqtSlot()
     def compression(self):
         print('Log Compression')
+        self.close()
         self.next = App5()
         # place holder for get and post request
 
     @pyqtSlot()
     def reverse(self):
         print('Reverse Video')
+        self.close()
         self.next = App5()
         # place holder for get and post request
 
     # place holder for zip file scroll down menu
     # def list_image(self)
+
+    def close_event(self, event):
+
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class App5(QMainWindow):
@@ -296,17 +355,32 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def download(self):
-        print('Download Images')
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(
+            self, "QFileDialog.getSaveFileName()",
+            "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
+                "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
+                "PNG Files(*.png)", options=options)
+        if fileName:
+            print(fileName)
 
     @pyqtSlot()
     def new_upload(self):
         print('Upload New Images')
+        self.close()
         self.next = App2()
 
+    def close_event(self, event):
 
-def error_message(error):
-    error_dialog = QErrorMessage()
-    error_dialog.showMessage(error)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 if __name__ == '__main__':

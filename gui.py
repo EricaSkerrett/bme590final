@@ -89,9 +89,9 @@ class App(QMainWindow):
 
     def close_event(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
@@ -141,9 +141,9 @@ class App2(QMainWindow):
 
     def close_event(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
@@ -194,9 +194,9 @@ class App3(QMainWindow):
 
     def close_event(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
@@ -295,9 +295,9 @@ class App4(QMainWindow):
 
     def close_event(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()
@@ -360,7 +360,8 @@ class App5(QMainWindow):
         fileName, _ = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()",
             "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
-                "TIFF Files(*.tif);; TIFF Files(*.tiff);; PNG Files(*.png)", options=options)
+                "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
+                "PNG Files(*.png)", options=options)
         if fileName:
             print(fileName)
 
@@ -372,9 +373,9 @@ class App5(QMainWindow):
 
     def close_event(self, event):
 
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit the image processor?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
+        reply = QMessageBox.question(
+            self, 'Message', "Are you sure to quit the image processor?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
             event.accept()

@@ -288,7 +288,7 @@ class App4(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:
@@ -366,7 +366,7 @@ class App5(QMainWindow):
     def close_event(self, event):
 
         reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the image processor?",
+            self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 
         if reply == QMessageBox.Yes:

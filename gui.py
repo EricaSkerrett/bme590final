@@ -12,6 +12,7 @@ import final
 
 global_user_email = ""
 global_image_dict = {}
+global_image_name = ""
 global_process_type = ""
 
 
@@ -136,11 +137,9 @@ class App2(QMainWindow):
             print("Warning: Empty")
 
     def close_event(self, event):
-
         reply = QMessageBox.question(
             self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
         if reply == QMessageBox.Yes:
             event.accept()
         else:
@@ -174,6 +173,8 @@ class App3(QMainWindow):
         self.show()
 
     def display_image(self):
+        global global_image_name
+        global_image_name = self.path + "/" + self.filename
         label = QLabel(self)
         pixmap = QPixmap(os.path.join(self.path, self.filename))
         pixmap2 = pixmap.scaledToWidth(400)
@@ -182,8 +183,9 @@ class App3(QMainWindow):
 
     def scroll_down_menu(self):
         global global_image_dict
+        global global_user_email
         global_image_dict = final.image_parser(self.path + "/" + self.filename)
-
+        client.post_uploaded_images(global_user_email, global_image_dict)
         label = QLabel("List of Images", self)
         # image_list = [
         #     "test user 1 ", "test user 2",
@@ -196,8 +198,12 @@ class App3(QMainWindow):
         label.setGeometry(150, 20, 640, 280)
         combo.activated[str].connect(self.on_activated)
 
-    def on_activated(self, text):
-        print(text)
+    def on_activated(self, name):
+        global global_user_email
+        global global_image_name
+        global_image_name = name
+        client.post_uploaded_images(global_user_email, global_image_name)
+        print(name)
 
     def button_upload(self):
         button = QPushButton('Upload Image', self)
@@ -207,17 +213,15 @@ class App3(QMainWindow):
         button.clicked.connect(self.next_window)
 
     def next_window(self):
+        global global_image_dict
+        global global_user_email
         self.close()
         self.next = App4(self.path, self.filename)
-    # place holder for zip file scroll down menu
-    # def list_image(self)
 
     def close_event(self, event):
-
         reply = QMessageBox.question(
             self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
         if reply == QMessageBox.Yes:
             event.accept()
         else:
@@ -284,6 +288,11 @@ class App4(QMainWindow):
 
     @pyqtSlot()
     def histogram(self):
+        global global_user_email
+        global global_process_type
+        global global_image_name
+        global_process_type = "HistogramEqualization"
+        client.post_processed_image(global_user_email, image_name, global_process_type)
         print('Histogram Equalization')
         self.close()
         self.next = App5()
@@ -291,6 +300,11 @@ class App4(QMainWindow):
 
     @pyqtSlot()
     def contrast(self):
+        global global_user_email
+        global global_process_type
+        global global_image_name
+        global_process_type = "ContrastStretching"
+        client.post_processed_image(global_user_email, global_image_name, global_process_type)
         print('Contrast Stretching')
         self.close()
         self.next = App5()
@@ -298,6 +312,11 @@ class App4(QMainWindow):
 
     @pyqtSlot()
     def compression(self):
+        global global_user_email
+        global global_process_type
+        global global_image_name
+        global_process_type = "LogCompression"
+        client.post_processed_image(global_user_email, global_image_name, global_process_type)
         print('Log Compression')
         self.close()
         self.next = App5()
@@ -305,6 +324,11 @@ class App4(QMainWindow):
 
     @pyqtSlot()
     def reverse(self):
+        global global_user_email
+        global global_process_type
+        global global_image_name
+        global_process_type = "ReverseVideo"
+        client.post_processed_image(global_user_email, global_image_name, global_process_type)
         print('Reverse Video')
         self.close()
         self.next = App5()

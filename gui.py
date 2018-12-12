@@ -206,7 +206,6 @@ class App3(QMainWindow):
     def scroll_down_menu(self):
         global global_image_dict
         global global_user_email
-        client.post_uploaded_images(global_user_email, global_image_dict)
         label = QLabel("List of Images", self)
         combo = QComboBox(self)
         for i in global_image_name:
@@ -312,7 +311,7 @@ class App4(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
-        image_strip = global_process_type.split('/')[-1]
+        image_strip = global_selected_namegi.split('/')[-1]
         image_name = image_strip.split('.')[0]
         global_process_type = "HistogramEqualization"
         print(global_user_email)
@@ -329,7 +328,7 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ContrastStretching"
-        image_strip = global_process_type.split('/')[-1]
+        image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         print(global_user_email)
         print(image_name)
@@ -338,7 +337,6 @@ class App4(QMainWindow):
                                     image_name, global_process_type)
         self.close()
         self.next = App5()
-        # place holder for get and post request
 
     @pyqtSlot()
     def compression(self):
@@ -346,7 +344,7 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "LogCompression"
-        image_strip = global_process_type.split('/')[-1]
+        image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         print(global_user_email)
         print(image_name)
@@ -355,7 +353,6 @@ class App4(QMainWindow):
                                     image_name, global_process_type)
         self.close()
         self.next = App5()
-        # place holder for get and post request
 
     @pyqtSlot()
     def reverse(self):
@@ -363,7 +360,7 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ReverseVideo"
-        image_strip = global_process_type.split('/')[-1]
+        image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         print(global_user_email)
         print(image_name)
@@ -428,8 +425,12 @@ class App5(QMainWindow):
             label.setGeometry(120, 20, 640, 280)
 
     def display_images_info(self):
-        label = QLabel('Place Holder for Image information', self)
-        label.move(180, 250)
+        global global_user_email
+        info = client.get_user_metrics(global_user_email)
+        user_metrics = list(info.keys())
+        for i in user_metrics:
+            label = QLabel(i, self)
+            label.move(250, 100 + user_metrics.index(i) * 50)
 
     def button_download(self):
         button = QPushButton('Download Image', self)
@@ -456,6 +457,7 @@ class App5(QMainWindow):
                 "PNG Files(*.png)", options=options)
         if fileName:
             print(fileName)
+            # place holder for saving file command
 
     @pyqtSlot()
     def new_upload(self):

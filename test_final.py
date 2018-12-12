@@ -7,6 +7,7 @@ global_image2 = "capy2.png"
 global_open1 = open(global_image1, "rb")
 global_b641 = final.base64.b64encode(global_open1.read())
 global_b64_string1 = global_b641.decode("UTF-8")
+global_zip = "test_zip.zip"
 
 
 def test_validate_create_user():
@@ -92,7 +93,18 @@ def test_image_parser():
 
 
 def test_unzip_folder():
-    assert 1 == 1
+    global global_zip
+    name_list = final.unzip_folder(global_zip)
+    assert name_list == ["test_zip/capy.jpg", "test_zip/capy2.png"]
+
+
+def test_zip_images():
+    global global_image1
+    global global_image2
+    image_list = [global_image1, global_image2]
+    zf = final.zip_images(image_list)
+    name_list = zf.namelist()
+    assert name_list == [global_image1, global_image2]
 
 
 @pytest.mark.parametrize("a, expected", [

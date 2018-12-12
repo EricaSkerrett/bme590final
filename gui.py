@@ -311,7 +311,7 @@ class App4(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
-        image_strip = global_selected_name.split('/')[-1]
+        image_strip = global_selected_namegi.split('/')[-1]
         image_name = image_strip.split('.')[0]
         global_process_type = "HistogramEqualization"
         print(global_user_email)
@@ -337,7 +337,6 @@ class App4(QMainWindow):
                                     image_name, global_process_type)
         self.close()
         self.next = App5()
-        # place holder for get and post request
 
     @pyqtSlot()
     def compression(self):
@@ -354,7 +353,6 @@ class App4(QMainWindow):
                                     image_name, global_process_type)
         self.close()
         self.next = App5()
-        # place holder for get and post request
 
     @pyqtSlot()
     def reverse(self):
@@ -457,6 +455,7 @@ class App5(QMainWindow):
                 "PNG Files(*.png)", options=options)
         if fileName:
             print(fileName)
+            # place holder for saving file command
 
     @pyqtSlot()
     def new_upload(self):

@@ -1,4 +1,4 @@
-# bme590final
+# bme590final [![Build Status](https://travis-ci.org/EricaSkerrett/bme590final.svg?branch=master)](https://travis-ci.org/EricaSkerrett/bme590final)
 Final Project for BME 590: Medical Device Software Design.
 
 The server (final.py) is running on **http://vcm-7311.vm.duke.edu:5000**. The client that the image processing graphical user interface calls on (saved in client.py) makes GET and POST requests to this server.

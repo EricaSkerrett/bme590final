@@ -113,27 +113,23 @@ def validate_image_upload(r):
     """ Validates user inputs for posts to /image/upload
 
         Args:
-            r: dictionary containing user_email and uploaded_images keys
+            r: dictionary containing keys of image names and values
+               of the base64 string encoded image
 
         Raises:
-            AttributeError: when r does not contain the 2 required keys
-            TypeError: when user_email is not an email/when keys in
-                       uploaded_images does not end in .jpg, .tiff,
-                       .png, or .zip
+            TypeError: when the image names or the image strings are not
+                       string types
+            AttributeError: when the image name contains a / or .
 
         """
-    if all(k in r for k in ("user_email", "uploaded_images")):
-        if "@" not in r["user_email"]:
-            raise TypeError("user_email must be a valid email.")
-        elif r["uploaded_images"] is not None:
-            for image in r["uploaded_images"]:
-                if ".jpg" not in image and ".png" not in image and ".tiff" \
-                        not in image and ".zip" not in image:
-                    raise TypeError("Uploaded image must be JPG,"
-                                    " PNG, or TIFF.")
-    else:
-        raise AttributeError("Post must be dict with user_email and"
-                             "uploaded_images keys.")
+    for image_name in r.keys():
+        if type(image_name) is not str:
+            raise TypeError("Image name must be a string.")
+        if '/' in image_name or '.' in image_name:
+            raise AttributeError("Image name cannot contain . or /")
+    for image_string in r.values():
+        if type(image_string) is not str:
+            raise TypeError("Image value must be a base64 string.")
 
 
 def image_encoder(image):
@@ -173,7 +169,9 @@ def image_parser(file_list):
                 .endswith('.tiff'):
             base64_bytes = image_encoder(image)
             base64_string = base64_bytes.decode("UTF-8")
-            image_list = image.split('.')
+            image_only_list = image.split('/')
+            image_only = image_only_list[-1]
+            image_list = image_only.split('.')
             image_name = image_list[0]
             image_dict.update({image_name: base64_string})
         else:
@@ -232,8 +230,8 @@ def zip_images(image_list):  # for image downloads
     return zf
 
 
-@app.route("/image/upload", methods=["POST"])
-def image_upload():
+@app.route("/image/upload/<user_email>", methods=["POST"])
+def image_upload(user_email):
     """ POSTs user-uploaded image to database
 
     Posts user-uploaded image as an encoded base64 string as well as image
@@ -246,12 +244,12 @@ def image_upload():
     """
     r = request.get_json()
     validate_image_upload(r)
-    image_dict = image_parser(r["uploaded_images"])
+    image_dict = r
     image_size = get_size(image_dict)
     image_format = get_format(image_dict)
     upload_time = datetime.now()
 
-    image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
+    image = ImageDB.objects.raw({"_id": user_email}).first()
     image.uploaded_images.append(image_dict)
     image.upload_times.append(upload_time)
     image.image_size.append(image_size)

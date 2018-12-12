@@ -7,12 +7,14 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
+from final import image_parser
 
 
 global_user_email = ""
 global_image_name = []
 global_selected_name = ""
 global_process_type = ""
+global_image_dict = {}
 
 
 class App(QMainWindow):
@@ -144,8 +146,10 @@ class App2(QMainWindow):
         if file_name:
             global global_image_name
             global global_user_email
+            global global_image_dict
             global_image_name = file_name
-            client.post_uploaded_images(global_user_email, global_image_name)
+            global_image_dict = image_parser(global_image_name)
+            client.post_uploaded_images(global_user_email, global_image_dict)
             self.close()
             self.next = App3()
         else:
@@ -200,9 +204,9 @@ class App3(QMainWindow):
         label.setMinimumSize(250, 40)
 
     def scroll_down_menu(self):
-        global global_image_name
+        global global_image_dict
         global global_user_email
-        client.post_uploaded_images(global_user_email, global_image_name)
+        client.post_uploaded_images(global_user_email, global_image_dict)
         label = QLabel("List of Images", self)
         combo = QComboBox(self)
         for i in global_image_name:
@@ -308,12 +312,14 @@ class App4(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
+        image_strip = global_process_type.split('/')[-1]
+        image_name = image_strip.split('.')[0]
         global_process_type = "HistogramEqualization"
         print(global_user_email)
-        print(global_selected_name)
+        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    global_selected_name, global_process_type)
+                                    image_name, global_process_type)
         self.close()
         self.next = App5()
 
@@ -323,11 +329,13 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ContrastStretching"
+        image_strip = global_process_type.split('/')[-1]
+        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(global_selected_name)
+        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    global_selected_name, global_process_type)
+                                    image_name, global_process_type)
         self.close()
         self.next = App5()
         # place holder for get and post request
@@ -338,11 +346,13 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "LogCompression"
+        image_strip = global_process_type.split('/')[-1]
+        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(global_selected_name)
+        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    global_selected_name, global_process_type)
+                                    image_name, global_process_type)
         self.close()
         self.next = App5()
         # place holder for get and post request
@@ -353,11 +363,13 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ReverseVideo"
+        image_strip = global_process_type.split('/')[-1]
+        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(global_selected_name)
+        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    global_selected_name, global_process_type)
+                                    image_name, global_process_type)
         self.close()
         self.next = App5()
 
@@ -401,8 +413,10 @@ class App5(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
+        image_strip = global_process_type.split('/')[-1]
+        image_name = image_strip.split('.')[0]
         processed_images = client.get_processed_image(
-            global_user_email, global_selected_name, global_process_type)
+            global_user_email, image_name, global_process_type)
         label = QLabel(self)
         data = QByteArray.fromBase64(
             processed_images.get(global_selected_name))

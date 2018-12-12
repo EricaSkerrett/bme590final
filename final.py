@@ -211,6 +211,27 @@ def unzip_folder(zipped_folder):
     return name_list
 
 
+def zip_images(image_list):  # for image downloads
+    """ Adds 1 image at a time to a zipfile "downloaded_images.zip"
+        for when the user selects multiple images.
+        Pass zipped file through unzip_folder("downloaded_images.zip")
+        to view.
+
+    Args:
+        image_list: list[] of images by "foldername/file.ext"
+        that need to be zipped
+
+    Returns:
+         zf: closed zip file with appended image paths/names
+
+    """
+    zf = zipfile.ZipFile("downloaded_images.zip", "w")
+    for image in image_list:
+        zf.write(image)
+    zf.close()
+    return zf
+
+
 @app.route("/image/upload", methods=["POST"])
 def image_upload():
     """ POSTs user-uploaded image to database

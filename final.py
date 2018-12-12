@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import base64
 import io
 import matplotlib.image as mpimg
+import matplotlib
 from matplotlib import pyplot as plt
 import zipfile
 import skimage
@@ -12,6 +13,8 @@ from skimage import exposure, color
 from skimage.viewer import ImageViewer
 import imghdr
 import scipy
+import numpy as np
+matplotlib.use('TkAgg')
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -628,8 +631,35 @@ def reverse_video(encoded_img):
 
 
 def make_hist(img_array):
-    plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
-    plt.show()
+    vals = img_array.mean(axis=2).flatten()
+    fig = plt.figure()
+    b, bins, patches = plt.hist(vals, 255)
+    lim1, lim2 = plt.xlim([0, 255])
+    title = plt.title("Histogram")
+    # plt.show()
+    fig.savefig("hist.png", bbox_inches='tight', pad_inches=0)
+    open_hist = open("hist.png", "rb")
+    hist_array = skimage.io.imread(open_hist)
+    # print(hist_array)
+    # viewer = ImageViewer(hist_array)
+    # viewer.show()
+
+    # my_stringIObytes = StringIO.StringIO()
+    # plt.savefig(my_stringIObytes, format='png')
+    # my_stringIObytes.seek(0)
+    # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
+    # fig.add_subplot(111)
+    # fig.canvas.draw()
+    # width, height = fig.get_size_inches()*fig.get_dpi()
+    # mplimage = np.fromstring(fig.canvas.tostring_rgb(), /
+    #       dtype='uint8').reshape(height, width, 3)
+    # hist_array = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    # hist_array = hist_array.reshape(fig.canvas.get_width_height()/
+    #       [::-1] + (3,))
+    # plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
+    # plt.show()
+    # hist_array = np.array(fig.canvas.renderer._renderer)
+    return hist_array
 
 
 if __name__ == "__main__":

@@ -226,3 +226,9 @@ def test_reverse_video():
     last = inv_img[-1, -1, -1]
     param = [length, last]
     assert param == [416, 231]
+
+
+def test_make_hist():
+    # global global_open1
+    # hist2 = final.make_hist(global_open1.read())
+    assert 1 == 1

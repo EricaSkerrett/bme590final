@@ -127,11 +127,9 @@ class App2(QMainWindow):
     def image_dialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(
-            self, "QFileDialog.getSaveFileName()",
-            "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
-                "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
-                "PNG Files(*.png) ;; ZIP Files(*.zip)", options=options)
+        file_name, _ = QFileDialog.getOpenFileNames(
+            self, "QFileDialog.getOpenFileNames()", "",
+            "All Files (*)", options=options)
         if file_name:
             global global_image_name
             global global_user_email
@@ -184,12 +182,8 @@ class App3(QMainWindow):
         global global_user_email
         client.post_uploaded_images(global_user_email, global_image_name)
         label = QLabel("List of Images", self)
-        # image_list = [
-        #     "test user 1 ", "test user 2",
-        #     "test user 3", "test user 4"]
-        image_list = global_image_name
         combo = QComboBox(self)
-        for i in image_list:
+        for i in global_image_name:
             combo.addItem(i)
         combo.move(250, 150)
         label.setGeometry(150, 20, 640, 280)
@@ -197,7 +191,7 @@ class App3(QMainWindow):
 
     def on_activated(self, name):
         global global_user_email
-        global global_selected_name_name
+        global global_selected_name
         global_selected_name = name
         print(name)
 
@@ -235,6 +229,7 @@ class App4(QMainWindow):
         self.next = None
         self.path, self.filename = os.path.split(global_selected_name)
         self.init_gui()
+        print(global_selected_name)
 
     def init_gui(self):
         self.setWindowTitle(self.title)
@@ -368,16 +363,13 @@ class App5(QMainWindow):
         processed_images = client.get_processed_image(
             global_user_email, global_selected_name, global_process_type)
         label = QLabel(self)
-
-        ba = QtCore.QByteArray.fromBase64(data)
-        pixmap = QtGui.QPixmap()
-        if pixmap.loadFromData(ba, "PNG"):
+        data = QByteArray.fromBase64(processed_images.get(global_selected_name))
+        pixmap = QPixmap()
+        if pixmap.loadFromData(data, "PNG"):
             self.label.setPixmap(pixmap)
-
-        pixmap = QPixmap.loadFromData(os.path.join(self.path, self.filename))
-        pixmap2 = pixmap.scaledToWidth(400)
-        label.setPixmap(pixmap2)
-        label.setGeometry(120, 20, 640, 280)
+            pixmap2 = pixmap.scaledToWidth(400)
+            label.setPixmap(pixmap2)
+            label.setGeometry(120, 20, 640, 280)
 
     def display_images_info(self):
         label = QLabel('Place Holder for Image information', self)

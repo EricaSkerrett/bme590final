@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QApplication, QInputDialog, QLineEdit, QLabel, \
     QFileDialog, QTextEdit, QSpinBox, QVBoxLayout,\
     QComboBox, QGroupBox, QFormLayout, QMessageBox
-from PyQt5.QtCore import pyqtSlot, QByteArray
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
+from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
 
 
@@ -30,6 +30,10 @@ class App(QMainWindow):
     def init_gui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
         self.statusBar().showMessage('Welcome!')
         self.display_text()
         self.button_new_user()
@@ -37,8 +41,11 @@ class App(QMainWindow):
         self.show()
 
     def display_text(self):
-        label = QLabel('Author: ', self)
-        label.move(200, 350)
+        label = QLabel('Author: Sarah Putney, '
+                       'Erica Skerrett, Roujia Wang', self)
+        label.setAlignment(Qt.AlignCenter)
+        label.move(150, 300)
+        label.setMinimumSize(350, 40)
 
     def button_new_user(self):
         button = QPushButton('Create New User', self)
@@ -113,6 +120,10 @@ class App2(QMainWindow):
     def init_gui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
         self.statusBar().showMessage('Step 1: Choose Images!')
         self.button_choose()
         self.show()
@@ -172,10 +183,21 @@ class App3(QMainWindow):
     def init_gui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
         self.statusBar().showMessage('Step 2: Upload Image(s)!')
+        self.display_text()
         self.scroll_down_menu()  # user define unzipped images
         self.button_upload()
         self.show()
+
+    def display_text(self):
+        label = QLabel('Please Select From Following Options', self)
+        label.setAlignment(Qt.AlignCenter)
+        label.move(180, 100)
+        label.setMinimumSize(250, 40)
 
     def scroll_down_menu(self):
         global global_image_name
@@ -193,7 +215,7 @@ class App3(QMainWindow):
         global global_user_email
         global global_selected_name
         global_selected_name = name
-        print(name)
+        print(global_selected_name)
 
     def button_upload(self):
         button = QPushButton('Upload Image', self)
@@ -234,18 +256,24 @@ class App4(QMainWindow):
     def init_gui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
         self.statusBar().showMessage('Step 3: Process Image(s)!')
-        # Create widget
-        label = QLabel(self)
-        pixmap = QPixmap(os.path.join(self.path, self.filename))
-        pixmap2 = pixmap.scaledToWidth(250)
-        label.setPixmap(pixmap2)
-        label.setGeometry(50, 20, 640, 280)
+        self.display_image()
         self.button1()
         self.button2()
         self.button3()
         self.button4()
         self.show()
+
+    def display_image(self):
+        label = QLabel(self)
+        pixmap = QPixmap(os.path.join(self.path, self.filename))
+        pixmap2 = pixmap.scaledToWidth(250)
+        label.setPixmap(pixmap2)
+        label.setGeometry(50, 20, 640, 280)
 
     def button1(self):
         button = QPushButton('Histogram Equalization', self)
@@ -281,11 +309,13 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "HistogramEqualization"
-        client.post_processed_image(global_user_email, global_selected_name, global_process_type)
-        print('Histogram Equalization')
+        print(global_user_email)
+        print(global_selected_name)
+        print(global_process_type)
+        client.post_processed_image(global_user_email,
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
-        # place holder for get and post request
 
     @pyqtSlot()
     def contrast(self):
@@ -293,8 +323,11 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ContrastStretching"
-        client.post_processed_image(global_user_email, global_selected_name, global_process_type)
-        print('Contrast Stretching')
+        print(global_user_email)
+        print(global_selected_name)
+        print(global_process_type)
+        client.post_processed_image(global_user_email,
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
         # place holder for get and post request
@@ -305,8 +338,11 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "LogCompression"
-        client.post_processed_image(global_user_email, global_selected_name, global_process_type)
-        print('Log Compression')
+        print(global_user_email)
+        print(global_selected_name)
+        print(global_process_type)
+        client.post_processed_image(global_user_email,
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
         # place holder for get and post request
@@ -317,17 +353,18 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ReverseVideo"
-        client.post_processed_image(global_user_email, global_selected_name, global_process_type)
-        print('Reverse Video')
+        print(global_user_email)
+        print(global_selected_name)
+        print(global_process_type)
+        client.post_processed_image(global_user_email,
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
 
     def close_event(self, event):
-
         reply = QMessageBox.question(
             self, 'Message', "Are you sure you want to quit the processor?",
             QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
         if reply == QMessageBox.Yes:
             event.accept()
         else:
@@ -349,6 +386,10 @@ class App5(QMainWindow):
     def init_gui(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
         self.statusBar().showMessage('Step 4: Download Processed Image(s)!')
         self.display_images()
         self.display_images_info()
@@ -363,7 +404,8 @@ class App5(QMainWindow):
         processed_images = client.get_processed_image(
             global_user_email, global_selected_name, global_process_type)
         label = QLabel(self)
-        data = QByteArray.fromBase64(processed_images.get(global_selected_name))
+        data = QByteArray.fromBase64(
+            processed_images.get(global_selected_name))
         pixmap = QPixmap()
         if pixmap.loadFromData(data, "PNG"):
             self.label.setPixmap(pixmap)

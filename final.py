@@ -12,9 +12,12 @@ from skimage import exposure, color
 from skimage.viewer import ImageViewer
 import imghdr
 import scipy
+import logging
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
+
+logging.basicConfig(filename="hrss.log", filemode='w', level=logging.INFO)
 
 
 class ImageDB(MongoModel):
@@ -40,9 +43,13 @@ def validate_create_user(r):
     """
     if "user_email" in r:
         if "@" not in r["user_email"]:
+            logging.exception("TypeError: user_email is not an email string.")
             raise TypeError("user_email must be an email string.")
     else:
+        logging.exception("AttributeError: post does not contain"
+                          " user_email key.")
         raise AttributeError("Post must be dict with user_email key.")
+    logging.info("Passed create user validation.")
 
 
 def init_user_metrics(user_email):
@@ -64,6 +71,7 @@ def init_user_metrics(user_email):
                     "LogCompression": 0,
                     "ReverseVideo": 0,
                     "Time to Complete Last Process": 0}
+    logging.info("User metrics for " + user_email + " initialized.")
     return user_metrics
 
 
@@ -80,6 +88,7 @@ def create_user():
     user_metrics = init_user_metrics(r["user_email"])
     entry = ImageDB(r["user_email"], user_metrics=user_metrics)
     entry.save()
+    logging.info("New user stored in database.")
     return "Created", 200
 
 
@@ -100,12 +109,14 @@ def returning_user(user_email):
                     "user_email": user_email,
                     "error_message": 'None'
                     }
+            logging.info("Return user accessed.")
             break
         else:
             email = {"user_email": "Not in database",
                      "error_message": 'User not in database. Please enter'
                                       ' an email in the database or create'
                                       ' a new user.'}
+            logging.exception("User not in the database.")
     return jsonify(email)
 
 

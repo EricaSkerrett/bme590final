@@ -427,8 +427,10 @@ class App5(QMainWindow):
     def display_images_info(self):
         global global_user_email
         info = client.get_user_metrics(global_user_email)
-        label = QLabel(info, self)  # need to elaborate more
-        label.move(180, 250)
+        user_metrics = list(info.keys())
+        for i in user_metrics:
+            label = QLabel(i, self)
+            label.move(250, 100 + user_metrics.index(i) * 50)
 
     def button_download(self):
         button = QPushButton('Download Image', self)

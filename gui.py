@@ -428,26 +428,37 @@ class App5(QMainWindow):
         s = processed_images[image_name]
         data = QByteArray.fromBase64(s.encode())
         image_type = image_strip.split('.')[1]
-        print(image_type)
+        upload_sizes = client.get_upload_sizes(global_user_email)
+        upload_size = upload_sizes[image_name]
+        size_string = "Upload Size: " + str(upload_size)
+        upload_times = client.get_upload_time(global_user_email)
+        upload_time = upload_times[image_name]
+        print(upload_time)
+        time_string = "Upload Time: " + upload_time
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):
-            pixmap2 = pixmap.scaledToWidth(400)
+            pixmap2 = pixmap.scaledToWidth(230)
             label.setPixmap(pixmap2)
-            label.setGeometry(280, 20, 640, 280)
+            label.setGeometry(380, 20, 640, 280)
+        label1 = QLabel(size_string, self)
+        label1.move(320, 30)
+        label1.setMinimumSize(200, 40)
+        label2 = QLabel(time_string, self)
+        label2.move(320, 50)
+        label2.setMinimumSize(300, 40)
 
     def display_images_info(self):
         global global_user_email
         info = client.get_user_metrics(global_user_email)
-        print(info)
         user_metrics = list(info.keys())
         user_metrics_info = list(info.values())
         for i, n in enumerate(user_metrics):
             label1 = QLabel(str(n), self)
-            label1.move(20, 50 + i * 20)
-            label1.setMinimumSize(200, 40)
+            label1.move(10, 50 + i * 20)
+            label1.setMinimumSize(220, 40)
         for i, n in enumerate(user_metrics_info):
             label2 = QLabel(str(n), self)
-            label2.move(220, 50 + i * 20)
+            label2.move(240, 50 + i * 20)
             label2.setMinimumSize(200, 40)
 
     def button_download(self):
@@ -529,21 +540,29 @@ class App6(QMainWindow):
         self.statusBar().showMessage('Step 5: View Histogram(s)!')
         self.button_original()
         self.button_processed()
+        self.upload_new_images()
         self.show()
 
     def button_original(self):
         button = QPushButton('Original Histogram', self)
-        button.setMinimumSize(200, 40)
+        button.setMinimumSize(200, 30)
         button.setToolTip('This is an example button')
         button.move(220, 300)
         button.clicked.connect(self.histogram_original)
 
     def button_processed(self):
         button = QPushButton('Processed Histogram', self)
-        button.setMinimumSize(200, 40)
+        button.setMinimumSize(200, 30)
         button.setToolTip('This is an example button')
         button.move(220, 330)
         button.clicked.connect(self.histogram_processed)
+
+    def upload_new_images(self):
+        button = QPushButton('Upload New Image(s)', self)
+        button.setMinimumSize(200, 30)
+        button.setToolTip('This is an example button')
+        button.move(220, 360)
+        button.clicked.connect(self.new_upload)
 
     def histogram_original(self):
         global global_selected_name
@@ -565,6 +584,12 @@ class App6(QMainWindow):
 
     def histogram_processed(self):
         print("histogram processed")
+
+    @pyqtSlot()
+    def new_upload(self):
+        print('Upload New Images')
+        self.close()
+        self.next = App2()
 
 
 if __name__ == '__main__':

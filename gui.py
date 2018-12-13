@@ -417,6 +417,7 @@ class App5(QMainWindow):
         data = QByteArray.fromBase64(
             base64.b64encode(s.encode('utf-8')))
         image_type = image_strip.split('.')[1]
+        print(image_type)
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):
             pixmap2 = pixmap.scaledToWidth(400)

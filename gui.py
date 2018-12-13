@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
-from final import image_parser, decode
+from final import image_parser, make_hist
 import base64
 
 
@@ -412,6 +412,7 @@ class App5(QMainWindow):
         self.display_images_info()
         self.button_download()
         self.upload_new_images()
+        self.button_histogram()
         self.show()
 
     def display_images(self):
@@ -463,17 +464,24 @@ class App5(QMainWindow):
         button.move(220, 330)
         button.clicked.connect(self.new_upload)
 
+    def button_histogram(self):
+        button = QPushButton('View Histogram(s)', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 270)
+        button.clicked.connect(self.histogram_window)
+
     @pyqtSlot()
     def download(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(
+        file_name, _ = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()",
             "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
                 "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
                 "PNG Files(*.png)", options=options)
-        if fileName:
-            print(fileName)
+        if file_name:
+            print(file_name)
             # place holder for saving file command
 
     @pyqtSlot()
@@ -481,6 +489,12 @@ class App5(QMainWindow):
         print('Upload New Images')
         self.close()
         self.next = App2()
+
+    @pyqtSlot()
+    def histogram_window(self):
+        print('view histogram')
+        self.close()
+        self.next = App6()
 
     def close_event(self, event):
         reply = QMessageBox.question(
@@ -532,7 +546,21 @@ class App6(QMainWindow):
         button.clicked.connect(self.histogram_processed)
 
     def histogram_original(self):
-
+        global global_selected_name
+        global global_image_dict
+        label = QLabel(self)
+        image_strip = global_selected_name.split('/')[-1]
+        image_key = image_strip.split('.')[0]
+        image_data = global_image_dict[image_key]
+        process_image = make_hist(image_data)
+        data = QByteArray.fromBase64(process_image)
+        image_type = image_strip.split('.')[1]
+        print(image_type)
+        pixmap = QPixmap()
+        if pixmap.loadFromData(data, image_type):
+            pixmap2 = pixmap.scaledToWidth(400)
+            label.setPixmap(pixmap2)
+            label.setGeometry(280, 20, 640, 280)
         print("histogram original")
 
     def histogram_processed(self):

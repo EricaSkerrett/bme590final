@@ -484,7 +484,8 @@ def image_processed_upload():
     r = request.get_json()
     validate_image_processed_upload(r)
     image_name = r["image_name"]
-    image_no_format = image_name.split('.')[0]
+    image_no_location = image_name.split('/')[-1]
+    image_no_format = image_no_location.split('.')[0]
     process_type = r["process_type"]
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
     image_string = image_encoder(image_name)
@@ -492,9 +493,7 @@ def image_processed_upload():
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
     processed_image_b64bytes = base64.b64encode(processed_image)
-    # makes array into b64string
-    processed_image_b64string = processed_image_b64bytes.decode("UTF-8")
-    processed_image = processed_image_b64string
+    processed_image = processed_image_b64bytes.decode("UTF-8")
     time_to_process = str(time_to_process)
     process_time = datetime.now()
     process_info = {image_no_format: processed_image,
@@ -524,15 +523,13 @@ def get_processed_image(user_email, image_name, process_type):
                          the image process_type, and image process_time
 
     """
-    image_list = image_name.split('.')
-    image_key = image_list[0]
     processed_image = {}
     image = ImageDB.objects.raw({"_id": user_email}).first()
     processed_info = image.processed_info
     for dicts in processed_info:
         images = dicts.keys()
         processing = dicts["process_type"]
-        if (image_key in images) and (processing == process_type):
+        if (image_name in images) and (processing == process_type):
             processed_image = dicts
     return jsonify(processed_image)
 

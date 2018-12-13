@@ -314,14 +314,13 @@ class App4(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
-        image_strip = global_selected_name.split('/')[-1]
-        image_name = image_strip.split('.')[0]
         global_process_type = "HistogramEqualization"
         print(global_user_email)
-        print(image_name)
+        print(global_selected_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    image_name, global_process_type)
+                                    global_selected_name, global_process_type)
+        print('posted')
         self.close()
         self.next = App5()
 
@@ -331,13 +330,11 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ContrastStretching"
-        image_strip = global_selected_name.split('/')[-1]
-        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(image_name)
+        print(global_selected_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    image_name, global_process_type)
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
 
@@ -347,13 +344,10 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "LogCompression"
-        image_strip = global_selected_name.split('/')[-1]
-        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    image_name, global_process_type)
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
 
@@ -363,13 +357,10 @@ class App4(QMainWindow):
         global global_process_type
         global global_selected_name
         global_process_type = "ReverseVideo"
-        image_strip = global_selected_name.split('/')[-1]
-        image_name = image_strip.split('.')[0]
         print(global_user_email)
-        print(image_name)
         print(global_process_type)
         client.post_processed_image(global_user_email,
-                                    image_name, global_process_type)
+                                    global_selected_name, global_process_type)
         self.close()
         self.next = App5()
 
@@ -415,10 +406,10 @@ class App5(QMainWindow):
         global global_selected_name
         image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
+        print(image_name)
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
         label = QLabel(self)
-        print(processed_images)
         data = QByteArray.fromBase64(
             decode(processed_images.get(image_name)))
         image_type = image_strip.split('.')[1]

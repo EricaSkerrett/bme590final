@@ -321,6 +321,7 @@ class App4(QMainWindow):
         client.post_processed_image(global_user_email,
                                     global_selected_name, global_process_type)
         print('posted')
+        print(global_selected_name)
         self.close()
         self.next = App5()
 
@@ -409,9 +410,10 @@ class App5(QMainWindow):
         print(image_name)
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
+        print(processed_images.keys())
         label = QLabel(self)
         data = QByteArray.fromBase64(
-            decode(processed_images.get(image_name)))
+            decode(processed_images[image_name]))
         image_type = image_strip.split('.')[1]
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):

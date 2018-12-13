@@ -46,19 +46,18 @@ def test_init_user_metrics(a, expected):
 
 
 def test_validate_image_upload():
-    r1 = {"user_email": "name@email.com"}
-    r2 = {"uploaded_images": ["image.jpg"]}
-    r3 = {"user_email": "name", "uploaded_images": ["image.jpg"]}
-    r4 = {"user_email": "name@email.com", "uploaded_images": ["image",
-                                                              "image.png"]}
+    r1 = {123: "base64string"}
+    r2 = {"uploaded_image": [123]}
+    r3 = {"image1.jpg": "base64string", "image2": "base64"}
+    r4 = {"Folder/image": "base64", "Folder/image.jpg": "base64"}
 
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         final.validate_image_upload(r1)
-    with pytest.raises(AttributeError):
+    with pytest.raises(TypeError):
         final.validate_image_upload(r2)
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         final.validate_image_upload(r3)
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         final.validate_image_upload(r4)
 
 

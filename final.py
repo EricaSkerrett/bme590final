@@ -16,6 +16,7 @@ import scipy
 import logging
 import numpy as np
 import os
+from PIL import Image
 # matplotlib.use('TkAgg')
 
 

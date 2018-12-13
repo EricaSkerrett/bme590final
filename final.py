@@ -15,6 +15,7 @@ import imghdr
 import scipy
 import logging
 import numpy as np
+import os
 # matplotlib.use('TkAgg')
 
 
@@ -225,9 +226,25 @@ def unzip_folder(zipped_folder):
         "foldername/file.ext"
 
     """
-    zf = zipfile.ZipFile(zipped_folder, 'r')
+
+    dpath = "zip_image_holder"
+    if not os.path.exists(dpath):
+        os.makedirs(dpath)
+    # zipped_folder = "test_zip.zip"
+    with zipfile.ZipFile(zipped_folder) as zf:
+        zf.extractall(dpath)
     name_list = zf.namelist()
-    return name_list
+    new_name_list = []
+    for name in name_list:
+        new_name = dpath + "/" + name
+        new_name_list.append(new_name)
+
+    # with zipfile.ZipFile(zipped_folder) as zf:
+    #    zf.extractall("zip_image_holder")
+    # zf = zipfile.ZipFile(zipped_folder, 'r')
+    # name_list = zf.namelist()
+    # return name_list
+    return new_name_list
 
 
 def zip_images(image_list):  # for image downloads

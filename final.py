@@ -525,8 +525,17 @@ def image_processed_upload():
 
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
-    processed_image_b64bytes = base64.b64encode(processed_image)
-    processed_image = processed_image_b64bytes.decode("UTF-8")
+
+    img = Image.fromarray(processed_image, 'RGB')
+    buffer - io.ByteseIO()
+    img.save(buffer, format="JPEG")
+    myimage = buffer.getvalue()
+    bytes = base64.b64encode(myimage)
+    processed_image = bytes.decode(bytes)  # basestring
+
+    # processed_image_b64bytes = base64.b64encode(processed_image)
+    # processed_image = processed_image_b64bytes.decode("UTF-8")
+
     time_to_process = str(time_to_process)
     process_time = datetime.now()
     process_info = {image_no_format: processed_image,
@@ -707,25 +716,6 @@ def make_hist(img_b64string):
     hist_b64bytes = base64.b64encode(hist_array)
     hist_b64string = hist_b64bytes.decode("UTF-8")
 
-    # print(hist_array)
-    # viewer = ImageViewer(hist_array)
-    # viewer.show()
-
-    # my_stringIObytes = StringIO.StringIO()
-    # plt.savefig(my_stringIObytes, format='png')
-    # my_stringIObytes.seek(0)
-    # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
-    # fig.add_subplot(111)
-    # fig.canvas.draw()
-    # width, height = fig.get_size_inches()*fig.get_dpi()
-    # mplimage = np.fromstring(fig.canvas.tostring_rgb(), /
-    #       dtype='uint8').reshape(height, width, 3)
-    # hist_array = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    # hist_array = hist_array.reshape(fig.canvas.get_width_height()/
-    #       [::-1] + (3,))
-    # plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
-    # plt.show()
-    # hist_array = np.array(fig.canvas.renderer._renderer)
     return hist_b64string
 
 

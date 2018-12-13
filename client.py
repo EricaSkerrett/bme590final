@@ -1,7 +1,7 @@
 import requests
 
-# api_host = "http://127.0.0.1:5000"
-api_host = "http://vcm-7311.vm.duke.edu:5000"
+api_host = "http://127.0.0.1:5000"
+# api_host = "http://vcm-7311.vm.duke.edu:5000"
 
 
 def post_create_user(user_email):

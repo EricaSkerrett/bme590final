@@ -528,11 +528,11 @@ def image_processed_upload():
                                                      process_type)
 
     img = Image.fromarray(processed_image, 'RGB')
-    buffer - io.ByteseIO()
+    buffer = io.BytesIO()
     img.save(buffer, format="JPEG")
     myimage = buffer.getvalue()
     bytes = base64.b64encode(myimage)
-    processed_image = bytes.decode(bytes)  # basestring
+    processed_image = bytes.decode()  # basestring
 
     # processed_image_b64bytes = base64.b64encode(processed_image)
     # processed_image = processed_image_b64bytes.decode("UTF-8")

@@ -711,8 +711,8 @@ def make_hist(img_b64string):
     lim1, lim2 = plt.xlim([0, 255])
     title = plt.title("Histogram")
     # plt.show()
-    fig.savefig("hist.png", bbox_inches='tight', pad_inches=0)
-    open_hist = open("hist.png", "rb")
+    fig.savefig("hist.jpeg", bbox_inches='tight', pad_inches=0)
+    open_hist = open("hist.jpeg", "rb")
     hist_array = skimage.io.imread(open_hist)
 
     img = Image.fromarray(hist_array, 'RGB')

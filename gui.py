@@ -576,7 +576,7 @@ class App6(QMainWindow):
         image_type = image_strip.split('.')[1]
         print(image_type)
         pixmap = QPixmap()
-        if pixmap.loadFromData(data, image_type):
+        if pixmap.loadFromData(data, 'JPEG'):
             pixmap2 = pixmap.scaledToWidth(400)
             label.setPixmap(pixmap2)
             label.setGeometry(280, 20, 640, 280)

@@ -714,8 +714,16 @@ def make_hist(img_b64string):
     fig.savefig("hist.png", bbox_inches='tight', pad_inches=0)
     open_hist = open("hist.png", "rb")
     hist_array = skimage.io.imread(open_hist)
-    hist_b64bytes = base64.b64encode(hist_array)
-    hist_b64string = hist_b64bytes.decode()
+
+    img = Image.fromarray(hist_array, 'RGB')
+    buffer = io.BytesIO()
+    img.save(buffer, format="JPEG")
+    myimage = buffer.getvalue()
+    bytes = base64.b64encode(myimage)
+    hist_b64string = bytes.decode()  # basestring
+
+    # hist_b64bytes = base64.b64encode(hist_array)
+    # hist_b64string = hist_b64bytes.decode()
 
     return hist_b64string
 

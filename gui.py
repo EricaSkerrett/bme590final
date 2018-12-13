@@ -8,6 +8,7 @@ from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
 from final import image_parser, decode
+import base64
 
 
 global_user_email = ""
@@ -193,12 +194,13 @@ class App3(QMainWindow):
         self.setPalette(p)
         self.statusBar().showMessage('Step 2: Upload Image(s)!')
         self.display_text()
-        self.scroll_down_menu()  # user define unzipped images
+        self.scroll_down_menu()
         self.button_upload()
         self.show()
 
     def display_text(self):
-        label = QLabel('Please Select From Following Options', self)
+        label = QLabel('Please Select From Following Options'
+                       ' and Click the Image Name', self)
         label.setAlignment(Qt.AlignCenter)
         label.move(180, 100)
         label.setMinimumSize(250, 40)
@@ -407,27 +409,33 @@ class App5(QMainWindow):
         global global_selected_name
         image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
-        print(image_name)
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
         print(processed_images.keys())
         label = QLabel(self)
+        s = processed_images[image_name]
         data = QByteArray.fromBase64(
-            decode(processed_images[image_name]))
+            base64.b64encode(s.encode('utf-8')))
         image_type = image_strip.split('.')[1]
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):
             pixmap2 = pixmap.scaledToWidth(400)
             label.setPixmap(pixmap2)
-            label.setGeometry(120, 20, 640, 280)
+            label.setGeometry(280, 20, 640, 280)
 
     def display_images_info(self):
         global global_user_email
         info = client.get_user_metrics(global_user_email)
         user_metrics = list(info.keys())
+        user_metrics_info = list(info.values())
         for i in user_metrics:
-            label = QLabel(i, self)
-            label.move(250, 100 + user_metrics.index(i) * 50)
+            label1 = QLabel(str(i), self)
+            label1.move(20, 50 + user_metrics.index(i) * 20)
+            label1.setMinimumSize(200, 40)
+        for i in user_metrics_info:
+            label2 = QLabel(str(i), self)
+            label2.move(220, 50 + user_metrics_info.index(i) * 20)
+            label2.setMinimumSize(200, 40)
 
     def button_download(self):
         button = QPushButton('Download Image', self)

@@ -17,7 +17,7 @@ import logging
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
 
-logging.basicConfig(filename="hrss.log", filemode='w', level=logging.INFO)
+logging.basicConfig(filename="final.log", filemode='w', level=logging.INFO)
 
 
 class ImageDB(MongoModel):
@@ -173,8 +173,14 @@ def image_parser(file_list):
     for file in file_list:
         if file.endswith('.zip'):
             image_names = unzip_folder(file)
+
             file_list.remove(file)
             file_list.append(image_names)
+    for image in file_list:
+        if type(image) is list:
+            for contents in image:
+                file_list.append(contents)
+            file_list.remove(image)
     for image in file_list:
         if image.endswith('.jpg') or image.endswith('.png') or image\
                 .endswith('.tiff'):

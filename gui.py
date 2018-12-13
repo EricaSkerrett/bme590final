@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
-from final import image_parser, decode
+from final import image_parser, make_hist
 import base64
 
 
@@ -467,13 +467,13 @@ class App5(QMainWindow):
     def download(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getSaveFileName(
+        file_name, _ = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()",
             "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
                 "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
                 "PNG Files(*.png)", options=options)
-        if fileName:
-            print(fileName)
+        if file_name:
+            print(file_name)
             # place holder for saving file command
 
     @pyqtSlot()
@@ -532,7 +532,12 @@ class App6(QMainWindow):
         button.clicked.connect(self.histogram_processed)
 
     def histogram_original(self):
-
+        global global_selected_name
+        global global_image_dict
+        image_strip = global_selected_name.split('/')[-1]
+        image_key = image_strip.split('.')[0]
+        image_data = global_image_dict[image_key]
+        process_image = make_hist(image_data)
         print("histogram original")
 
     def histogram_processed(self):

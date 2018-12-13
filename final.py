@@ -196,7 +196,7 @@ def image_parser(file_list):
         if image.endswith('.jpg') or image.endswith('.png') or image\
                 .endswith('.tiff'):
             base64_bytes = image_encoder(image)
-            base64_string = base64_bytes.decode("UTF-8")
+            base64_string = base64_bytes.decode()
             image_only_list = image.split('/')
             image_only = image_only_list[-1]
             image_list = image_only.split('.')
@@ -218,7 +218,7 @@ def b64string_encoder(b64string):
          b64bytes: the bytes base64 type
 
     """
-    b64bytes = b64string.encode("UTF-8")
+    b64bytes = b64string.encode()
     logging.info("base64 string of image converted to base64 bytes.")
     return b64bytes
 

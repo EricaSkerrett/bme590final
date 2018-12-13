@@ -425,8 +425,7 @@ class App5(QMainWindow):
         print(processed_images.keys())
         label = QLabel(self)
         s = processed_images[image_name]
-        data = QByteArray.fromBase64(
-            base64.b64encode(s.encode('utf-8')))
+        data = QByteArray.fromBase64(s.encode())
         image_type = image_strip.split('.')[1]
         print(image_type)
         pixmap = QPixmap()
@@ -492,6 +491,52 @@ class App5(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+
+class App6(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+        self.title = 'Image Processor'
+        self.left = 10
+        self.top = 10
+        self.width = 640
+        self.height = 400
+        self.next = None
+        self.init_gui()
+
+    def init_gui(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setAutoFillBackground(True)
+        p = self.palette()
+        p.setColor(self.backgroundRole(), QColor(204, 204, 255))
+        self.setPalette(p)
+        self.statusBar().showMessage('Step 5: View Histogram(s)!')
+        self.button_original()
+        self.button_processed()
+        self.show()
+
+    def button_original(self):
+        button = QPushButton('Original Histogram', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 300)
+        button.clicked.connect(self.histogram_original)
+
+    def button_processed(self):
+        button = QPushButton('Processed Histogram', self)
+        button.setMinimumSize(200, 40)
+        button.setToolTip('This is an example button')
+        button.move(220, 330)
+        button.clicked.connect(self.histogram_processed)
+
+    def histogram_original(self):
+
+        print("histogram original")
+
+    def histogram_processed(self):
+        print("histogram processed")
 
 
 if __name__ == '__main__':

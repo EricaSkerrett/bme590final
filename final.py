@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import base64
 import io
 import matplotlib.image as mpimg
+import matplotlib
 from matplotlib import pyplot as plt
 import zipfile
 import skimage
@@ -13,6 +14,9 @@ from skimage.viewer import ImageViewer
 import imghdr
 import scipy
 import logging
+import numpy as np
+# matplotlib.use('TkAgg')
+
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)
@@ -642,9 +646,52 @@ def reverse_video(encoded_img):
     return inv_img, process_time
 
 
-def make_hist(img_array):
-    plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
-    plt.show()
+def make_hist(img_b64string):
+    """ Takes a b64-encoded image and returns a b64 string of the image's
+        histogram
+
+      Args:
+          img_b64string: base64 string encoded image
+
+      Returns:
+          hist_b64string: base64 string encoded image of histogram
+
+      """
+
+    img_buf = decode(img_b64string)
+    img_array = skimage.io.imread(img_buf)
+    vals = img_array.mean(axis=2).flatten()
+    fig = plt.figure()
+    b, bins, patches = plt.hist(vals, 255)
+    lim1, lim2 = plt.xlim([0, 255])
+    title = plt.title("Histogram")
+    # plt.show()
+    fig.savefig("hist.png", bbox_inches='tight', pad_inches=0)
+    open_hist = open("hist.png", "rb")
+    hist_array = skimage.io.imread(open_hist)
+    hist_b64bytes = base64.b64encode(hist_array)
+    hist_b64string = hist_b64bytes.decode("UTF-8")
+
+    # print(hist_array)
+    # viewer = ImageViewer(hist_array)
+    # viewer.show()
+
+    # my_stringIObytes = StringIO.StringIO()
+    # plt.savefig(my_stringIObytes, format='png')
+    # my_stringIObytes.seek(0)
+    # my_base64_pngData = base64.b64encode(my_stringIObytes.read())
+    # fig.add_subplot(111)
+    # fig.canvas.draw()
+    # width, height = fig.get_size_inches()*fig.get_dpi()
+    # mplimage = np.fromstring(fig.canvas.tostring_rgb(), /
+    #       dtype='uint8').reshape(height, width, 3)
+    # hist_array = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    # hist_array = hist_array.reshape(fig.canvas.get_width_height()/
+    #       [::-1] + (3,))
+    # plt.hist(img_array.ravel(), bin=256, histtype='step', color='black')
+    # plt.show()
+    # hist_array = np.array(fig.canvas.renderer._renderer)
+    return hist_b64string
 
 
 if __name__ == "__main__":

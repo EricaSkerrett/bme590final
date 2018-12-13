@@ -419,9 +419,9 @@ class App5(QMainWindow):
         label = QLabel(self)
         data = QByteArray.fromBase64(
             processed_images[image_name])
+        image_type = image_strip.split('.')[1]
         pixmap = QPixmap()
-        if pixmap.loadFromData(data, "PNG"):
-            self.label.setPixmap(pixmap)
+        if pixmap.loadFromData(data, image_type):
             pixmap2 = pixmap.scaledToWidth(400)
             label.setPixmap(pixmap2)
             label.setGeometry(120, 20, 640, 280)

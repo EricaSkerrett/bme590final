@@ -204,20 +204,22 @@ class App3(QMainWindow):
         label.setMinimumSize(250, 40)
 
     def scroll_down_menu(self):
-        global global_image_dict
         global global_user_email
+        uploaded_images = client.get_uploaded_images(global_user_email)
         label = QLabel("List of Images", self)
         combo = QComboBox(self)
-        for i in global_image_name:
+        for i in uploaded_images:
             combo.addItem(i)
         combo.move(250, 150)
         label.setGeometry(150, 20, 640, 280)
         combo.activated[str].connect(self.on_activated)
 
     def on_activated(self, name):
-        global global_user_email
+        global global_image_name
         global global_selected_name
-        global_selected_name = name
+        for i in global_image_name:
+            if name in i:
+                global_selected_name = name
         print(global_selected_name)
 
     def button_upload(self):
@@ -311,7 +313,7 @@ class App4(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
-        image_strip = global_selected_namegi.split('/')[-1]
+        image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         global_process_type = "HistogramEqualization"
         print(global_user_email)
@@ -410,13 +412,13 @@ class App5(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
-        image_strip = global_process_type.split('/')[-1]
+        image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
         label = QLabel(self)
         data = QByteArray.fromBase64(
-            processed_images.get(global_selected_name))
+            processed_images[image_name])
         pixmap = QPixmap()
         if pixmap.loadFromData(data, "PNG"):
             self.label.setPixmap(pixmap)

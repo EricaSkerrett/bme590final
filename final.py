@@ -140,12 +140,16 @@ def validate_image_upload(r):
         """
     for image_name in r.keys():
         if type(image_name) is not str:
+            logging.exception("TypeError: Image name must be a string.")
             raise TypeError("Image name must be a string.")
         if '/' in image_name or '.' in image_name:
+            logging.exception("Image name cannot contain . or /")
             raise AttributeError("Image name cannot contain . or /")
     for image_string in r.values():
         if type(image_string) is not str:
+            logging.exception("Image value must be a base64 string.")
             raise TypeError("Image value must be a base64 string.")
+    logging.info("Image upload POST passed validation.")
 
 
 def image_encoder(image):
@@ -160,6 +164,7 @@ def image_encoder(image):
     """
     with open(image, "rb") as image_file:
         base64_bytes = base64.b64encode(image_file.read())
+    logging.info("Image encoded as base64 bytes.")
     return base64_bytes
 
 
@@ -178,9 +183,9 @@ def image_parser(file_list):
     for file in file_list:
         if file.endswith('.zip'):
             image_names = unzip_folder(file)
-
             file_list.remove(file)
             file_list.append(image_names)
+            logging.info("Zip file unzipped.")
     for image in file_list:
         if type(image) is list:
             for contents in image:
@@ -198,6 +203,7 @@ def image_parser(file_list):
             image_dict.update({image_name: base64_string})
         else:
             file_list.remove(image)
+    logging.info("Image strings parsed into dictionary for POST.")
     return image_dict
 
 
@@ -212,6 +218,7 @@ def b64string_encoder(b64string):
 
     """
     b64bytes = b64string.encode("UTF-8")
+    logging.info("base64 string of image converted to base64 bytes.")
     return b64bytes
 
 
@@ -230,7 +237,6 @@ def unzip_folder(zipped_folder):
     dpath = "zip_image_holder"
     if not os.path.exists(dpath):
         os.makedirs(dpath)
-    # zipped_folder = "test_zip.zip"
     with zipfile.ZipFile(zipped_folder) as zf:
         zf.extractall(dpath)
     name_list = zf.namelist()
@@ -238,16 +244,11 @@ def unzip_folder(zipped_folder):
     for name in name_list:
         new_name = dpath + "/" + name
         new_name_list.append(new_name)
-
-    # with zipfile.ZipFile(zipped_folder) as zf:
-    #    zf.extractall("zip_image_holder")
-    # zf = zipfile.ZipFile(zipped_folder, 'r')
-    # name_list = zf.namelist()
-    # return name_list
+    logging.info("Files unzipped to zip_image_holder folder.")
     return new_name_list
 
 
-def zip_images(image_list):  # for image downloads
+def zip_images(image_list):
     """ Adds 1 image at a time to a zipfile "downloaded_images.zip"
         for when the user selects multiple images.
         Pass zipped file through unzip_folder("downloaded_images.zip")
@@ -265,6 +266,7 @@ def zip_images(image_list):  # for image downloads
     for image in image_list:
         zf.write(image)
     zf.close()
+    logging.info("Selected images downloaded to downloaded_images.zip.")
     return zf
 
 
@@ -289,9 +291,12 @@ def image_upload(user_email):
 
     image = ImageDB.objects.raw({"_id": user_email}).first()
     image.uploaded_images.append(image_dict)
+    logging.info("Uploaded images saved to database.")
     image.upload_times.append(upload_time)
     image.image_size.append(image_size)
     image.image_formats.append(image_format)
+    logging.info("Uploaded image timestamps, sizes, and"
+                 " formats saved to database.")
     image.user_metrics["Images Uploaded"] += len(image_dict)
     image.save()
     return "Uploaded", 200
@@ -329,6 +334,7 @@ def get_uploaded_images(user_email):
     image = ImageDB.objects.raw({"_id": user_email}).first()
     uploads = image.uploaded_images
     uploaded_images = list_to_dict(uploads)
+    logging.info("All uploaded images retrieved.")
     return jsonify(uploaded_images)
 
 
@@ -353,6 +359,7 @@ def get_upload_time(user_email):
         upload_time = times[i]
         for keys in uploads[i].keys():
             upload_times.update({keys: upload_time})
+    logging.info("Timestamps for uploaded images retrieved.")
     return jsonify(upload_times)
 
 
@@ -372,6 +379,7 @@ def get_upload_sizes(user_email):
     image = ImageDB.objects.raw({"_id": user_email}).first()
     size_dicts = image.image_size
     upload_sizes = list_to_dict(size_dicts)
+    logging.info("Image sizes for uploaded images retrieved.")
     return jsonify(upload_sizes)
 
 
@@ -382,7 +390,7 @@ def get_size(image_dict):
         image_dict: dictionary containing base64 values and image name keys
 
     Returns:
-        size_dict: dictionary containing size values and image name keys
+        size_dict: dictionary containing size values and image name keys.
         Sizes are in tuples (H, W, D)
 
     """
@@ -447,15 +455,19 @@ def validate_image_processed_upload(r):
     """
     if all(k in r for k in ("user_email", "image_name", "process_type")):
         if "@" not in r["user_email"]:
+            logging.exception("User email must be a valid email.")
             raise TypeError("user_email must be a valid email.")
         elif type(r["image_name"]) is not str:
+            logging.exception("Image name must be a string.")
             raise TypeError("image_name must be a string.")
         elif r["process_type"] != "HistogramEqualization"\
                 and r["process_type"] != "ContrastStretching"\
                 and r["process_type"] != "LogCompression" \
                 and r["process_type"] != "ReverseVideo":
+            logging.exception("Process type must be one of the 4 specified.")
             raise TypeError("process_type must be one of the 4 specified.")
     else:
+        logging.exception("Post does not have proper keys.")
         raise AttributeError("Post must be dict with user_email, image_name, "
                              "and process_types keys.")
 
@@ -483,6 +495,8 @@ def process_image(image_string, process_type):
     else:
         processed_image = image_string
         process_time = 0
+    logging.info("Proper processing performed on image and stored"
+                 " as an array.")
     return processed_image, process_time
 
 
@@ -519,9 +533,11 @@ def image_processed_upload():
                     "process_type": process_type,
                     "process_time": process_time}
     image.processed_info.append(process_info)
+    logging.info("Processed image info stored in database.")
     image.user_metrics[process_type] += 1
     image.user_metrics["Images Processed"] += 1
     image.user_metrics["Time to Complete Last Process"] = time_to_process
+    logging.info("User metrics updated after processing.")
     image.save()
     return "Uploaded", 200
 
@@ -550,6 +566,7 @@ def get_processed_image(user_email, image_name, process_type):
         processing = dicts["process_type"]
         if (image_name in images) and (processing == process_type):
             processed_image = dicts
+    logging.info("Processed image retrieved from database.")
     return jsonify(processed_image)
 
 
@@ -568,6 +585,7 @@ def get_user_metrics(user_email):
     """
     image = ImageDB.objects.raw({"_id": user_email}).first()
     user_metrics = image.user_metrics
+    logging.info("User metrics retrieved from database.")
     return jsonify(user_metrics)
 
 
@@ -591,8 +609,7 @@ def hist_equalization(encoded_img):
     eq_img = skimage.exposure.equalize_hist(gs_img)
     end_time = time.monotonic()
     process_time = timedelta(seconds=end_time - start_time)
-    # viewer = ImageViewer(eq_img)
-    # viewer.show()
+    logging.info("Histogram Equalization processing complete.")
     return eq_img, process_time
 
 
@@ -615,7 +632,7 @@ def cont_stretching(encoded_img):
     contstr_img = exposure.rescale_intensity(img, out_range=(150, 200))
     end_time = time.monotonic()
     process_time = timedelta(seconds=end_time - start_time)
-    # lowers the contrast
+    logging.info("Contrast Stretching processing complete.")
     return contstr_img, process_time
 
 
@@ -629,7 +646,7 @@ def log_compression(encoded_img):
     Returns:
         constr_img: an array for the new image that underwent contrast
         stretching
-        process_time: seconds taken to complete image_processing
+        process_time: seconds taken to complete image processing
 
     """
     start_time = time.monotonic()
@@ -638,6 +655,7 @@ def log_compression(encoded_img):
     logcomp_img = skimage.exposure.adjust_log(img, gain=0.5)
     end_time = time.monotonic()
     process_time = timedelta(seconds=end_time - start_time)
+    logging.info("Log Compression processing complete.")
     return logcomp_img, process_time
 
 
@@ -659,6 +677,7 @@ def reverse_video(encoded_img):
     inv_img = skimage.util.invert(img)
     end_time = time.monotonic()
     process_time = timedelta(seconds=end_time - start_time)
+    logging.info("Reverse Video processing complete.")
     return inv_img, process_time
 
 

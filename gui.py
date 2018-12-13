@@ -427,15 +427,16 @@ class App5(QMainWindow):
     def display_images_info(self):
         global global_user_email
         info = client.get_user_metrics(global_user_email)
+        print(info)
         user_metrics = list(info.keys())
         user_metrics_info = list(info.values())
-        for i in user_metrics:
-            label1 = QLabel(str(i), self)
-            label1.move(20, 50 + user_metrics.index(i) * 20)
+        for i, n in enumerate(user_metrics):
+            label1 = QLabel(str(n), self)
+            label1.move(20, 50 + i * 20)
             label1.setMinimumSize(200, 40)
-        for i in user_metrics_info:
-            label2 = QLabel(str(i), self)
-            label2.move(220, 50 + user_metrics_info.index(i) * 20)
+        for i, n in enumerate(user_metrics_info):
+            label2 = QLabel(str(n), self)
+            label2.move(220, 50 + i * 20)
             label2.setMinimumSize(200, 40)
 
     def button_download(self):

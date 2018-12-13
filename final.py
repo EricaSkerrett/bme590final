@@ -505,7 +505,9 @@ def image_processed_upload():
     image_no_format = image_no_location.split('.')[0]
     process_type = r["process_type"]
     image = ImageDB.objects.raw({"_id": r["user_email"]}).first()
-    image_string = image_encoder(image_name)
+    dict_images = image.uploaded_images
+    uploaded_images = list_to_dict(dict_images)
+    image_string = uploaded_images[image_no_format]
 
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)

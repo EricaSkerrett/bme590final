@@ -14,7 +14,7 @@ from skimage.viewer import ImageViewer
 import imghdr
 import scipy
 import numpy as np
-matplotlib.use('TkAgg')
+# matplotlib.use('TkAgg')
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
 app = Flask(__name__)

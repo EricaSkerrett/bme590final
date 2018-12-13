@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
-from final import image_parser
+from final import image_parser, decode
 
 
 global_user_email = ""
@@ -205,7 +205,8 @@ class App3(QMainWindow):
 
     def scroll_down_menu(self):
         global global_user_email
-        uploaded_images = client.get_uploaded_images(global_user_email)
+        global global_image_name
+        uploaded_images = global_image_name
         label = QLabel("List of Images", self)
         combo = QComboBox(self)
         for i in uploaded_images:
@@ -417,8 +418,9 @@ class App5(QMainWindow):
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
         label = QLabel(self)
+        print(processed_images)
         data = QByteArray.fromBase64(
-            processed_images[image_name])
+            decode(processed_images.get(image_name)))
         image_type = image_strip.split('.')[1]
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):

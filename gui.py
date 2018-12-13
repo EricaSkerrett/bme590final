@@ -200,21 +200,20 @@ class App3(QMainWindow):
 
     def display_text(self):
         label = QLabel('Please Select From Following Options'
-                       ' and Click the Image Name', self)
+                       ' by Clicking the Image Name:', self)
         label.setAlignment(Qt.AlignCenter)
-        label.move(180, 100)
-        label.setMinimumSize(250, 40)
+        label.move(0, 100)
+        label.setMinimumSize(640, 40)
 
     def scroll_down_menu(self):
         global global_user_email
         global global_image_name
         uploaded_images = global_image_name
-        label = QLabel("List of Images", self)
         combo = QComboBox(self)
         for i in uploaded_images:
             combo.addItem(i)
-        combo.move(250, 150)
-        label.setGeometry(150, 20, 640, 280)
+        combo.move(100, 150)
+        combo.setMinimumSize(440, 40)
         combo.activated[str].connect(self.on_activated)
 
     def on_activated(self, name):
@@ -233,8 +232,20 @@ class App3(QMainWindow):
         button.clicked.connect(self.next_window)
 
     def next_window(self):
-        self.close()
-        self.next = App4()
+        global global_selected_name
+        if global_selected_name == '':
+            button_reply = QMessageBox.question(
+                self, 'Error Message', 'You must click on the image to'
+                                       ' select it!',
+                QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if button_reply == QMessageBox.Yes:
+                self.next = App3()
+                self.close()
+            else:
+                self.close()
+        else:
+            self.close()
+            self.next = App4()
 
     def close_event(self, event):
         reply = QMessageBox.question(

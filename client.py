@@ -38,21 +38,20 @@ def get_returning_user(user_email):
     return email
 
 
-def post_uploaded_images(user_email, uploaded_images):
-    """ Makes POST request to /image/upload
+def post_uploaded_images(user_email, image_dict):
+    """ Makes POST request to /image/upload/<user_email>
 
     Args:
         user_email: user email ID
-        uploaded_images: list of image files desired to be uploaded (must
-                         be of the format .jpg, .tiff, .png, or .zip)
+        image_dict: dict with image names as keys and base64
+                    strings as the corresponding values
 
     Returns:
          r: the status of the post request (200 if completed)
 
     """
-    upload = {"user_email": user_email,
-              "uploaded_images": uploaded_images}
-    r = requests.post(api_host + '/image/upload', json=upload)
+    r = requests.post(api_host + '/image/upload/' + user_email,
+                      json=image_dict)
     return r
 
 
@@ -166,7 +165,6 @@ def get_user_metrics(user_email):
 
 if __name__ == "__main__":
     post_create_user("test3@duke.edu")
-    post_uploaded_images("test3@duke.edu", ["capy.jpg", "capy2.png"])
     upload_times = get_upload_time("test3@duke.edu")
     print(upload_times)
     upload_sizes = get_upload_sizes("test3@duke.edu")

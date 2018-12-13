@@ -715,7 +715,7 @@ def make_hist(img_b64string):
     open_hist = open("hist.png", "rb")
     hist_array = skimage.io.imread(open_hist)
     hist_b64bytes = base64.b64encode(hist_array)
-    hist_b64string = hist_b64bytes.decode("UTF-8")
+    hist_b64string = hist_b64bytes.decode()
 
     return hist_b64string
 

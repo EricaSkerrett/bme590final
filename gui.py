@@ -540,7 +540,7 @@ class App6(QMainWindow):
 
     def histogram_processed(self):
         global global_process_image
-        make_hist(global_process_image)
+        vals = make_hist(global_process_image)
         label_text = QLabel('Processed Image', self)
         label_text.move(350, 50)
         label_text.setMinimumSize(150, 40)

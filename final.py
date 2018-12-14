@@ -17,7 +17,6 @@ import logging
 import numpy as np
 import os
 from PIL import Image
-# matplotlib.use('TkAgg')
 
 
 connect("mongodb://sputney13:sputney13@ds161901.mlab.com:61901/bme590final")
@@ -712,20 +711,20 @@ def make_hist(img_b64string):
     title = plt.title("Histogram")
     # plt.show()
     fig.savefig("hist.jpeg", bbox_inches='tight', pad_inches=0)
-    open_hist = open("hist.jpeg", "rb")
-    hist_array = skimage.io.imread(open_hist)
-
-    img = Image.fromarray(hist_array, 'RGB')
-    buffer = io.BytesIO()
-    img.save(buffer, format="JPEG")
-    myimage = buffer.getvalue()
-    bytes = base64.b64encode(myimage)
-    hist_b64string = bytes.decode()  # basestring
+    # open_hist = open("hist.jpeg", "rb")
+    # hist_array = skimage.io.imread(open_hist)
+    #
+    # img = Image.fromarray(hist_array, 'RGB')
+    # buffer = io.BytesIO()
+    # img.save(buffer, format="JPEG")
+    # myimage = buffer.getvalue()
+    # bytes = base64.b64encode(myimage)
+    # hist_b64string = bytes.decode()  # basestring
 
     # hist_b64bytes = base64.b64encode(hist_array)
     # hist_b64string = hist_b64bytes.decode()
 
-    return hist_b64string
+    # return hist_b64string
 
 
 if __name__ == "__main__":

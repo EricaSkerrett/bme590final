@@ -39,7 +39,7 @@ def validate_create_user(r):
     """ Validates user input for posts to /image/user
 
     Args:
-        r: dictionary containing user_email key for posting to database
+        r (dict): dictionary containing user_email key for posting to database
 
     Raises:
         AttributeError: when post does not contain proper key
@@ -61,10 +61,10 @@ def init_user_metrics(user_email):
     """ Creates the user_metrics dict for new user with all keys set to 0
 
     Args:
-        user_email: the new user's email string (database id)
+        user_email (str): the new user's email string (database id)
 
     Returns:
-        user_metrics: a dictionary to hold the metrics for that user's
+        user_metrics (dict): a dictionary to hold the metrics for that user's
                       processes, with all keys initially set to 0
 
     """
@@ -102,7 +102,7 @@ def returning_user(user_email):
     """ GETS a returning image processor user (identified by email) from db
 
     Args:
-        user_email: string containing returning user's email
+        user_email (str): string containing returning user's email
 
     Returns:
          email: json containing user_email and error_message keys
@@ -129,7 +129,7 @@ def validate_image_upload(r):
     """ Validates user inputs for posts to /image/upload
 
         Args:
-            r: dictionary containing keys of image names and values
+            r (dict): dictionary containing keys of image names and values
                of the base64 string encoded image
 
         Raises:
@@ -156,10 +156,10 @@ def image_encoder(image):
     """ Encodes image into base64 type bytes
 
     Args:
-        image: the name of the image to be encoded
+        image (str): the name of the image to be encoded
 
     Returns:
-         base_64_string: the base64 type bytes representing the image
+         base_64_string (str): the base64 type bytes representing the image
 
     """
     with open(image, "rb") as image_file:
@@ -172,11 +172,11 @@ def image_parser(file_list):
     """ Parses, encodes, and finds formats for uploaded images
 
     Args:
-        file_list: list containing strings of file names or
+        file_list (list): list containing strings of file names or
         zip folder of images to be encoded
 
     Returns:
-        image_dict: dictionary of images and their encoded base64 string
+        image_dict (dict): dictionary of images and their encoded base64 string
 
     """
     image_dict = {}
@@ -211,7 +211,7 @@ def b64string_encoder(b64string):
     """ Encodes string base64 type into bytes base64 type
 
     Args:
-        b64string: the string base64 of an image
+        b64string (str): the string base64 of an image
 
     Returns:
          b64bytes: the bytes base64 type
@@ -226,10 +226,10 @@ def unzip_folder(zipped_folder):
     """ Reads items from a zipped folder and stores in list
 
     Args:
-        zipped_folder: string containing name of .zip folder to be read
+        zipped_folder (str): string containing name of .zip folder to be read
 
     Returns:
-        file_list: list of items in .zip folder in style of
+        file_list (list): list of items in .zip folder in style of
         "foldername/file.ext"
 
     """
@@ -255,7 +255,7 @@ def zip_images(image_list):
         to view.
 
     Args:
-        image_list: list[] of images by "foldername/file.ext"
+        image_list (list): list[] of images by "foldername/file.ext"
         that need to be zipped
 
     Returns:
@@ -306,10 +306,10 @@ def list_to_dict(dict_images):
     """ Takes a list of dictionaries and sorts them into a single dict
 
     Args:
-        dict_images: A list of dictionaries containing images
+        dict_images (list): A list of dictionaries containing images
 
     Returns:
-        uploaded_images: a dictionary containing all the keys and info
+        uploaded_images (list): a dictionary containing all the keys and info
                          from the dict_images list
     """
     uploaded_images = {}
@@ -324,10 +324,10 @@ def get_uploaded_images(user_email):
     """ Retrieves all uploaded images for specified user
 
     Args:
-        user_email: email of user that has the desired uploaded images
+        user_email (str): email of user that has the desired uploaded images
 
     Returns:
-        uploaded_images: dict containing all uploaded image keys
+        uploaded_images (dict): dict containing all uploaded image keys
                          and strings
 
     """
@@ -346,7 +346,7 @@ def get_upload_time(user_email):
         user_email: user's email ID
 
     Returns:
-        upload_times: dict containing image_name as keys and upload_time
+        upload_times (dict): dict containing image_name as keys and upload_time
                       for image as its value
 
     """
@@ -387,11 +387,12 @@ def get_size(image_dict):
     """ Reads images from dictionary to find image size
 
     Args:
-        image_dict: dictionary containing base64 values and image name keys
+        image_dict (dict): dictionary containing base64 values and image
+        name keys
 
     Returns:
-        size_dict: dictionary containing size values and image name keys.
-        Sizes are in tuples (H, W, D)
+        size_dict (dict): dictionary containing size values and image name
+        keys. Sizes are in tuples (H, W, D)
 
     """
     image_name = image_dict.keys()
@@ -408,7 +409,7 @@ def decode(encoded_image):
     """ Takes an encoded image and decodes it for further processing
 
     Args:
-        encoded_image: base64 string encoding list
+        encoded_image (str): base64 string encoding list
 
     Returns:
         img_buf: buffered bytes object
@@ -423,10 +424,11 @@ def get_format(image_dict):
     """ Opens images from dictionary to find image format
 
     Args:
-        image_dict: dictionary containing base64 values and image name keys
+        image_dict (dict): dictionary containing base64 values and image
+        name keys
 
     Returns:
-        format_dict: dictionary containing image format values and
+        format_dict (dict): dictionary containing image format values and
         image name keys. Formats are strings
 
     """
@@ -443,8 +445,8 @@ def validate_image_processed_upload(r):
     """ Validates user inputs for posts to /image/processed/upload
 
     Args:
-        r: dictionary containing user_email, image_name, image_string, and
-           process_types keys
+        r (dict): dictionary containing user_email, image_name, image_string,
+        and process_types keys
 
     Raises:
          AttributeError: when r does not contain required keys
@@ -476,8 +478,8 @@ def process_image(image_string, process_type):
     """ Processes image string according to one of 4 processing types
 
     Args:
-        image_string: encoded base64 string of image to be processed
-        process_type: one of 4 supported processing types to be performed
+        image_string (str): encoded base64 string of image to be processed
+        process_type (str): one of 4 supported processing types to be performed
 
     Returns:
         processed_image: array of processed image data
@@ -564,8 +566,8 @@ def get_processed_image(user_email, image_name, process_type):
 
     Args:
         user_email: email of user that has the desired processed image
-        image_name: name of image that was processed
-        process_type: type of processing performed on the image
+        image_name (str): name of image that was processed
+        process_type (str): type of processing performed on the image
 
     Returns:
         processed_image: JSONified dict containing the image name as the
@@ -593,8 +595,8 @@ def get_user_metrics(user_email):
         user_email: email id for the image processing user
 
     Returns:
-         user_metrics: dict containing information about the number of images
-         uploaded, images processed and their types, and time of last
+         user_metrics (dict): dict containing information about the number of
+         images uploaded, images processed and their types, and time of last
          processing for the user
 
     """
@@ -609,7 +611,7 @@ def hist_equalization(encoded_img):
     histogram equalization
 
     Args:
-        encoded_img: base64 string encoding list
+        encoded_img (str): base64 string encoding list
 
     Returns:
         eq_img: an array for the new image that underwent histogram
@@ -633,7 +635,7 @@ def cont_stretching(encoded_img):
     contrast stretching
 
     Args:
-        encoded_img: base64 string encoding list
+        encoded_img (str): base64 string encoding list
 
     Returns:
         constr_img: an array for the new image that underwent contrast
@@ -656,7 +658,7 @@ def log_compression(encoded_img):
     log compression
 
     Args:
-        encoded_img: base64 string encoding list
+        encoded_img (str): base64 string encoding list
 
     Returns:
         constr_img: an array for the new image that underwent contrast
@@ -679,7 +681,7 @@ def reverse_video(encoded_img):
       inverting image
 
       Args:
-          encoded_img: base64 string encoding list
+          encoded_img (str): base64 string encoding list
 
       Returns:
           inv_img: an array for the new image that underwent inversion
@@ -701,10 +703,10 @@ def make_hist(img_b64string):
         histogram
 
       Args:
-          img_b64string: base64 string encoded image
+          img_b64string (str): base64 string encoded image
 
       Returns:
-          hist_b64string: base64 string encoded image of histogram
+          hist_b64string (str): base64 string encoded image of histogram
 
       """
 

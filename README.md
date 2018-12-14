@@ -27,7 +27,7 @@ The first window in the processor asks for the user to either create a new user 
 
 The next window allows the user to upload images (either individually or stored in a .zip file). They will then be allowed to select from all the images they just uploaded in order to view the selected image and choose which type of processing they wish to perform on that image. Note that the user must click on the image in order to select it, if the user does not click on the image an error message will pop up.
 
-Note that the interface will allow users to upload and view both JPEG and PNG files. However, to view processed images WITHIN the interface, the user must upload a JPEG-format image.
+Note that the interface will allow users to upload and view both JPEG and PNG files and view the processed images within the interface.
 
 The user is allowed to choose from "Histogram Equalization", "Contrast Stretching", "Log Compression", and "Reverse Video" as the forms of processing to perform on their selected image. After viewing the processing performed on the image, the user is given the option of downloading this image as either a JPG, PNG, or TIFF file to their local device. If the user initially uploaded a PNG type image, the downloaded image will allow the user to view the processing performed on the image.
 

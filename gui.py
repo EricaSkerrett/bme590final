@@ -48,11 +48,11 @@ class App(QMainWindow):
         self.show()
 
     def display_text(self):
-        label = QLabel('Author: Sarah Putney, '
+        label = QLabel('Authors: Sarah Putney, '
                        'Erica Skerrett, Roujia Wang', self)
         label.setAlignment(Qt.AlignCenter)
-        label.move(160, 300)
-        label.setMinimumSize(400, 40)
+        label.move(120, 300)
+        label.setMinimumSize(480, 40)
 
     def button_new_user(self):
         button = QPushButton('Create New User', self)
@@ -65,7 +65,7 @@ class App(QMainWindow):
         button = QPushButton('Existing User', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(360, 200)
+        button.move(400, 200)
         button.clicked.connect(self.get_user)
 
     @pyqtSlot()
@@ -138,7 +138,7 @@ class App2(QMainWindow):
         button = QPushButton('Choose Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(250, 320)
+        button.move(260, 340)
         button.clicked.connect(self.image_dialog)
 
     def image_dialog(self):
@@ -196,7 +196,7 @@ class App3(QMainWindow):
         label = QLabel('Please Select From Following Options'
                        ' by Clicking the Image Name:', self)
         label.setAlignment(Qt.AlignCenter)
-        label.move(20, 150)
+        label.move(40, 150)
         label.setMinimumSize(640, 40)
 
     def scroll_down_menu(self):
@@ -206,7 +206,7 @@ class App3(QMainWindow):
         combo = QComboBox(self)
         for i in uploaded_images:
             combo.addItem(i)
-        combo.move(120, 200)
+        combo.move(140, 200)
         combo.setMinimumSize(440, 40)
         combo.activated[str].connect(self.on_activated)
 
@@ -222,7 +222,7 @@ class App3(QMainWindow):
         button = QPushButton('Upload Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(250, 320)
+        button.move(260, 320)
         button.clicked.connect(self.next_window)
 
     def next_window(self):
@@ -264,7 +264,7 @@ class App4(QMainWindow):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
-        self.statusBar().showMessage('Step 3: Process Image(s)!')
+        self.statusBar().showMessage('Step 3: Process Image!')
         self.display_image()
         self.button1()
         self.button2()
@@ -275,36 +275,36 @@ class App4(QMainWindow):
     def display_image(self):
         label = QLabel(self)
         pixmap = QPixmap(os.path.join(self.path, self.filename))
-        pixmap2 = pixmap.scaledToWidth(350)
+        pixmap2 = pixmap.scaledToWidth(400)
         label.setPixmap(pixmap2)
-        label.setGeometry(50, 20, 640, 350)
+        label.setGeometry(50, 20, 640, 400)
 
     def button1(self):
         button = QPushButton('Histogram Equalization', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(400, 120)
+        button.move(470, 120)
         button.clicked.connect(self.histogram)
 
     def button2(self):
         button = QPushButton('Contrast Stretching', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(400, 170)
+        button.move(470, 170)
         button.clicked.connect(self.contrast)
 
     def button3(self):
         button = QPushButton('Log Compression', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(400, 220)
+        button.move(470, 220)
         button.clicked.connect(self.compression)
 
     def button4(self):
         button = QPushButton('Reverse Video', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(400, 270)
+        button.move(470, 270)
         button.clicked.connect(self.reverse)
 
     @pyqtSlot()
@@ -383,7 +383,7 @@ class App5(QMainWindow):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
-        self.statusBar().showMessage('Step 4: Download Processed Image(s)!')
+        self.statusBar().showMessage('Step 4: Download Processed Image!')
         self.display_images()
         self.display_images_info()
         self.button_download()
@@ -417,13 +417,13 @@ class App5(QMainWindow):
         if pixmap.loadFromData(data, image_type):
             pixmap2 = pixmap.scaledToWidth(250)
             label.setPixmap(pixmap2)
-            label.setGeometry(380, 20, 640, 320)
+            label.setGeometry(460, 100, 640, 250)
         label1 = QLabel(size_string, self)
-        label1.move(350, 30)
-        label1.setMinimumSize(200, 40)
+        label1.move(455, 30)
+        label1.setMinimumSize(220, 40)
         label2 = QLabel(time_string, self)
-        label2.move(350, 50)
-        label2.setMinimumSize(300, 40)
+        label2.move(410, 50)
+        label2.setMinimumSize(290, 40)
 
     def display_images_info(self):
         global global_user_email
@@ -432,32 +432,32 @@ class App5(QMainWindow):
         user_metrics_info = list(info.values())
         for i, n in enumerate(user_metrics):
             label1 = QLabel(str(n), self)
-            label1.move(30, 50 + i * 20)
+            label1.move(30, 100 + i * 20)
             label1.setMinimumSize(220, 40)
         for i, n in enumerate(user_metrics_info):
             label2 = QLabel(str(n), self)
-            label2.move(260, 50 + i * 20)
+            label2.move(260, 100 + i * 20)
             label2.setMinimumSize(200, 40)
 
     def button_download(self):
         button = QPushButton('Download Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(250, 330)
+        button.move(130, 370)
         button.clicked.connect(self.download)
 
     def upload_new_images(self):
         button = QPushButton('Upload New Image(s)', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(250, 360)
+        button.move(130, 410)
         button.clicked.connect(self.new_upload)
 
     def button_histogram(self):
-        button = QPushButton('View Histogram(s)', self)
+        button = QPushButton('View Histograms', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(250, 300)
+        button.move(130, 330)
         button.clicked.connect(self.histogram_window)
 
     @pyqtSlot()
@@ -515,7 +515,7 @@ class App6(QMainWindow):
         p = self.palette()
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
-        self.statusBar().showMessage('Step 5: View Histogram(s)!')
+        self.statusBar().showMessage('Step 5: View Histograms!')
         self.upload_new_images()
         self.histogram_original()
         self.histogram_processed()
@@ -525,30 +525,30 @@ class App6(QMainWindow):
         button = QPushButton('Upload New Image(s)', self)
         button.setMinimumSize(200, 30)
         button.setToolTip('This is an example button')
-        button.move(220, 320)
+        button.move(260, 400)
         button.clicked.connect(self.new_upload)
 
     def histogram_original(self):
         label_text = QLabel('Original Image', self)
-        label_text.move(100, 50)
+        label_text.move(105, 80)
         label_text.setMinimumSize(150, 40)
         label = QLabel('Original Image', self)
         pixmap = QPixmap('hist.jpeg')
-        pixmap2 = pixmap.scaledToWidth(230)
+        pixmap2 = pixmap.scaledToWidth(300)
         label.setPixmap(pixmap2)
-        label.setGeometry(80, 80, 640, 200)
+        label.setGeometry(30, 120, 640, 200)
 
     def histogram_processed(self):
         global global_process_image
         vals = make_hist(global_process_image)
         label_text = QLabel('Processed Image', self)
-        label_text.move(350, 50)
+        label_text.move(465, 80)
         label_text.setMinimumSize(150, 40)
         label = QLabel('Processed Image', self)
         pixmap = QPixmap('hist.jpeg')
-        pixmap2 = pixmap.scaledToWidth(230)
+        pixmap2 = pixmap.scaledToWidth(300)
         label.setPixmap(pixmap2)
-        label.setGeometry(320, 80, 640, 200)
+        label.setGeometry(390, 120, 640, 200)
 
     @pyqtSlot()
     def new_upload(self):

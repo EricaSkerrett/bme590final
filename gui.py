@@ -2,13 +2,11 @@ import sys
 import os
 from PyQt5.QtWidgets import QMainWindow, QPushButton,\
     QApplication, QInputDialog, QLineEdit, QLabel, \
-    QFileDialog, QTextEdit, QSpinBox, QVBoxLayout,\
-    QComboBox, QGroupBox, QFormLayout, QMessageBox
+    QFileDialog, QComboBox, QAction, QMessageBox
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
 from final import image_parser, make_hist, decode
-import base64
 import skimage
 from skimage.viewer import ImageViewer
 from PIL import Image
@@ -31,8 +29,8 @@ class App(QMainWindow):
         self.title = 'BME 590 Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.init_gui()
         self.next = None
 
@@ -53,21 +51,21 @@ class App(QMainWindow):
         label = QLabel('Author: Sarah Putney, '
                        'Erica Skerrett, Roujia Wang', self)
         label.setAlignment(Qt.AlignCenter)
-        label.move(150, 300)
-        label.setMinimumSize(350, 40)
+        label.move(160, 300)
+        label.setMinimumSize(400, 40)
 
     def button_new_user(self):
         button = QPushButton('Create New User', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(100, 200)
+        button.move(150, 200)
         button.clicked.connect(self.create_user)
 
     def button_existing_user(self):
         button = QPushButton('Existing User', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(320, 200)
+        button.move(360, 200)
         button.clicked.connect(self.get_user)
 
     @pyqtSlot()
@@ -103,15 +101,6 @@ class App(QMainWindow):
                 else:
                     self.close()
 
-    def close_event(self, event):
-        reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the processor?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
 
 class App2(QMainWindow):
 
@@ -120,8 +109,8 @@ class App2(QMainWindow):
         self.title = 'Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.label = QLabel()
         self.next = None
         self.init_gui()
@@ -134,14 +123,22 @@ class App2(QMainWindow):
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
         self.statusBar().showMessage('Step 1: Choose Images!')
+        self.display_image()
         self.button_choose()
         self.show()
+
+    def display_image(self):
+        label = QLabel(self)
+        pixmap = QPixmap('christmas.jpg')
+        pixmap2 = pixmap.scaledToWidth(400)
+        label.setPixmap(pixmap2)
+        label.setGeometry(160, 50, 640, 280)
 
     def button_choose(self):
         button = QPushButton('Choose Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(220, 200)
+        button.move(250, 320)
         button.clicked.connect(self.image_dialog)
 
     def image_dialog(self):
@@ -169,15 +166,6 @@ class App2(QMainWindow):
             else:
                 self.close()
 
-    def close_event(self, event):
-        reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the processor?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
 
 class App3(QMainWindow):
 
@@ -186,8 +174,8 @@ class App3(QMainWindow):
         self.title = 'Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.next = None
         self.init_gui()
 
@@ -208,7 +196,7 @@ class App3(QMainWindow):
         label = QLabel('Please Select From Following Options'
                        ' by Clicking the Image Name:', self)
         label.setAlignment(Qt.AlignCenter)
-        label.move(0, 100)
+        label.move(20, 150)
         label.setMinimumSize(640, 40)
 
     def scroll_down_menu(self):
@@ -218,7 +206,7 @@ class App3(QMainWindow):
         combo = QComboBox(self)
         for i in uploaded_images:
             combo.addItem(i)
-        combo.move(100, 150)
+        combo.move(120, 200)
         combo.setMinimumSize(440, 40)
         combo.activated[str].connect(self.on_activated)
 
@@ -234,7 +222,7 @@ class App3(QMainWindow):
         button = QPushButton('Upload Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(220, 300)
+        button.move(250, 320)
         button.clicked.connect(self.next_window)
 
     def next_window(self):
@@ -253,15 +241,6 @@ class App3(QMainWindow):
             self.close()
             self.next = App4()
 
-    def close_event(self, event):
-        reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the processor?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
 
 class App4(QMainWindow):
 
@@ -271,8 +250,8 @@ class App4(QMainWindow):
         self.title = 'Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.next = None
         self.path, self.filename = os.path.split(global_selected_name)
         self.init_gui()
@@ -296,36 +275,36 @@ class App4(QMainWindow):
     def display_image(self):
         label = QLabel(self)
         pixmap = QPixmap(os.path.join(self.path, self.filename))
-        pixmap2 = pixmap.scaledToWidth(250)
+        pixmap2 = pixmap.scaledToWidth(350)
         label.setPixmap(pixmap2)
-        label.setGeometry(50, 20, 640, 280)
+        label.setGeometry(50, 20, 640, 350)
 
     def button1(self):
         button = QPushButton('Histogram Equalization', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(360, 60)
+        button.move(400, 120)
         button.clicked.connect(self.histogram)
 
     def button2(self):
         button = QPushButton('Contrast Stretching', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(360, 120)
+        button.move(400, 170)
         button.clicked.connect(self.contrast)
 
     def button3(self):
         button = QPushButton('Log Compression', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(360, 180)
+        button.move(400, 220)
         button.clicked.connect(self.compression)
 
     def button4(self):
         button = QPushButton('Reverse Video', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(360, 240)
+        button.move(400, 270)
         button.clicked.connect(self.reverse)
 
     @pyqtSlot()
@@ -384,15 +363,6 @@ class App4(QMainWindow):
         self.close()
         self.next = App5()
 
-    def close_event(self, event):
-        reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the processor?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
 
 class App5(QMainWindow):
 
@@ -401,8 +371,8 @@ class App5(QMainWindow):
         self.title = 'Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.next = None
         self.init_gui()
 
@@ -445,14 +415,14 @@ class App5(QMainWindow):
         time_string = "Upload Time: " + upload_time
         pixmap = QPixmap()
         if pixmap.loadFromData(data, image_type):
-            pixmap2 = pixmap.scaledToWidth(230)
+            pixmap2 = pixmap.scaledToWidth(250)
             label.setPixmap(pixmap2)
-            label.setGeometry(380, 20, 640, 280)
+            label.setGeometry(380, 20, 640, 320)
         label1 = QLabel(size_string, self)
-        label1.move(320, 30)
+        label1.move(350, 30)
         label1.setMinimumSize(200, 40)
         label2 = QLabel(time_string, self)
-        label2.move(320, 50)
+        label2.move(350, 50)
         label2.setMinimumSize(300, 40)
 
     def display_images_info(self):
@@ -462,32 +432,32 @@ class App5(QMainWindow):
         user_metrics_info = list(info.values())
         for i, n in enumerate(user_metrics):
             label1 = QLabel(str(n), self)
-            label1.move(10, 50 + i * 20)
+            label1.move(30, 50 + i * 20)
             label1.setMinimumSize(220, 40)
         for i, n in enumerate(user_metrics_info):
             label2 = QLabel(str(n), self)
-            label2.move(240, 50 + i * 20)
+            label2.move(260, 50 + i * 20)
             label2.setMinimumSize(200, 40)
 
     def button_download(self):
         button = QPushButton('Download Image', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(220, 300)
+        button.move(250, 330)
         button.clicked.connect(self.download)
 
     def upload_new_images(self):
         button = QPushButton('Upload New Image(s)', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(220, 330)
+        button.move(250, 360)
         button.clicked.connect(self.new_upload)
 
     def button_histogram(self):
         button = QPushButton('View Histogram(s)', self)
         button.setMinimumSize(200, 40)
         button.setToolTip('This is an example button')
-        button.move(220, 270)
+        button.move(250, 300)
         button.clicked.connect(self.histogram_window)
 
     @pyqtSlot()
@@ -525,16 +495,6 @@ class App5(QMainWindow):
         self.close()
         self.next = App6()
 
-    def close_event(self, event):
-        reply = QMessageBox.question(
-            self, 'Message', "Are you sure you want to quit the processor?",
-            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-
 
 class App6(QMainWindow):
 
@@ -543,8 +503,8 @@ class App6(QMainWindow):
         self.title = 'Image Processor'
         self.left = 10
         self.top = 10
-        self.width = 640
-        self.height = 400
+        self.width = 720
+        self.height = 480
         self.next = None
         self.init_gui()
 
@@ -556,9 +516,9 @@ class App6(QMainWindow):
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
         self.statusBar().showMessage('Step 5: View Histogram(s)!')
+        self.upload_new_images()
         self.histogram_original()
         self.histogram_processed()
-        self.upload_new_images
         self.show()
 
     def upload_new_images(self):
@@ -592,7 +552,6 @@ class App6(QMainWindow):
 
     @pyqtSlot()
     def new_upload(self):
-        print('Upload New Images')
         self.close()
         self.next = App2()
 

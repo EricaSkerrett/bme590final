@@ -18,7 +18,7 @@ and uncomment the following code to use instead:
 Then user will be able to run final.py as a local server.
 
 ## Using the Image Processor Interface
-To run the Image Processor, save final.py, client.py, and gui.py to your local machine. Then run gui.py locally. This will bring up the interface for the processor.
+To run the Image Processor, save **final.py, client.py, gui.py, and images** to your local machine. Then run gui.py locally. This will bring up the interface for the processor.
 
 The first window in the processor asks for the user to either create a new user ID or to sign in as a return user. The user ID must be **a valid email address** that will serve as the method of identification for all image entries saved into the image processor database. Any return user must already exist in the database, or an error message will pop up.
 

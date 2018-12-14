@@ -8,7 +8,6 @@ from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
 from final import image_parser, make_hist
-import base64
 
 
 global_user_email = ""
@@ -16,6 +15,7 @@ global_image_name = []
 global_selected_name = ""
 global_process_type = ""
 global_image_dict = {}
+global_process_image = ""
 
 
 class App(QMainWindow):
@@ -419,6 +419,7 @@ class App5(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
+        global global_process_image
         image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         processed_images = client.get_processed_image(
@@ -426,6 +427,7 @@ class App5(QMainWindow):
         print(processed_images.keys())
         label = QLabel(self)
         s = processed_images[image_name]
+        global_process_image = s
         data = QByteArray.fromBase64(s.encode())
         image_type = image_strip.split('.')[1]
         upload_sizes = client.get_upload_sizes(global_user_email)
@@ -503,7 +505,12 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def histogram_window(self):
-        print('view histogram')
+        global global_selected_name
+        global global_image_dict
+        image_strip = global_selected_name.split('/')[-1]
+        image_key = image_strip.split('.')[0]
+        image_data = global_image_dict[image_key]
+        make_hist(image_data)
         self.close()
         self.next = App6()
 
@@ -538,52 +545,39 @@ class App6(QMainWindow):
         p.setColor(self.backgroundRole(), QColor(204, 204, 255))
         self.setPalette(p)
         self.statusBar().showMessage('Step 5: View Histogram(s)!')
-        self.button_original()
-        self.button_processed()
-        self.upload_new_images()
+        self.histogram_original()
+        self.histogram_processed()
+        self.upload_new_images
         self.show()
-
-    def button_original(self):
-        button = QPushButton('Original Histogram', self)
-        button.setMinimumSize(200, 30)
-        button.setToolTip('This is an example button')
-        button.move(220, 300)
-        button.clicked.connect(self.histogram_original)
-
-    def button_processed(self):
-        button = QPushButton('Processed Histogram', self)
-        button.setMinimumSize(200, 30)
-        button.setToolTip('This is an example button')
-        button.move(220, 330)
-        button.clicked.connect(self.histogram_processed)
 
     def upload_new_images(self):
         button = QPushButton('Upload New Image(s)', self)
         button.setMinimumSize(200, 30)
         button.setToolTip('This is an example button')
-        button.move(220, 360)
+        button.move(220, 320)
         button.clicked.connect(self.new_upload)
 
     def histogram_original(self):
-        global global_selected_name
-        global global_image_dict
-        label = QLabel(self)
-        image_strip = global_selected_name.split('/')[-1]
-        image_key = image_strip.split('.')[0]
-        image_data = global_image_dict[image_key]
-        process_image = make_hist(image_data)
-        data = QByteArray.fromBase64(process_image)
-        image_type = image_strip.split('.')[1]
-        print(image_type)
-        pixmap = QPixmap()
-        if pixmap.loadFromData(data, 'JPEG'):
-            pixmap2 = pixmap.scaledToWidth(400)
-            label.setPixmap(pixmap2)
-            label.setGeometry(280, 20, 640, 280)
-        print("histogram original")
+        label_text = QLabel('Original Image', self)
+        label_text.move(100, 50)
+        label_text.setMinimumSize(150, 40)
+        label = QLabel('Original Image', self)
+        pixmap = QPixmap('hist.jpeg')
+        pixmap2 = pixmap.scaledToWidth(230)
+        label.setPixmap(pixmap2)
+        label.setGeometry(80, 80, 640, 200)
 
     def histogram_processed(self):
-        print("histogram processed")
+        global global_process_image
+        make_hist(global_process_image)
+        label_text = QLabel('Processed Image', self)
+        label_text.move(350, 50)
+        label_text.setMinimumSize(150, 40)
+        label = QLabel('Processed Image', self)
+        pixmap = QPixmap('hist.jpeg')
+        pixmap2 = pixmap.scaledToWidth(230)
+        label.setPixmap(pixmap2)
+        label.setGeometry(320, 80, 640, 200)
 
     @pyqtSlot()
     def new_upload(self):

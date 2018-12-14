@@ -7,7 +7,13 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
-from final import image_parser, make_hist
+from final import image_parser, make_hist, decode
+import base64
+import skimage
+from skimage.viewer import ImageViewer
+from PIL import Image
+from matplotlib import pyplot as plt
+import io
 
 
 global_user_email = ""
@@ -486,16 +492,21 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def download(self):
+        global global_process_string
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(
+        file_name, options = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()",
-            "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
-                "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
+            "", "JPEG Files(*.jpeg);; "
+                "TIFF Files(*.tiff);; "
                 "PNG Files(*.png)", options=options)
         if file_name:
-            print(file_name)
-            # place holder for saving file command
+            options = options.split('.')[-1]
+            options = options.strip(')')
+            img_buf = decode(global_process_string)
+            img_array = skimage.io.imread(img_buf)
+            plt.imsave(file_name + '.' + options,
+                       img_array)
 
     @pyqtSlot()
     def new_upload(self):

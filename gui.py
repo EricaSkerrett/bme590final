@@ -7,8 +7,13 @@ from PyQt5.QtWidgets import QMainWindow, QPushButton,\
 from PyQt5.QtCore import pyqtSlot, QByteArray, Qt
 from PyQt5.QtGui import QIcon, QPixmap, QColor
 import client
-from final import image_parser, make_hist
+from final import image_parser, make_hist, decode
 import base64
+import skimage
+from skimage.viewer import ImageViewer
+from PIL import Image
+from matplotlib import pyplot as plt
+import io
 
 
 global_user_email = ""
@@ -16,6 +21,7 @@ global_image_name = []
 global_selected_name = ""
 global_process_type = ""
 global_image_dict = {}
+global_process_string = ''
 
 
 class App(QMainWindow):
@@ -419,14 +425,15 @@ class App5(QMainWindow):
         global global_user_email
         global global_process_type
         global global_selected_name
+        global global_process_string
         image_strip = global_selected_name.split('/')[-1]
         image_name = image_strip.split('.')[0]
         processed_images = client.get_processed_image(
             global_user_email, image_name, global_process_type)
         print(processed_images.keys())
         label = QLabel(self)
-        s = processed_images[image_name]
-        data = QByteArray.fromBase64(s.encode())
+        global_process_string = processed_images[image_name]
+        data = QByteArray.fromBase64(global_process_string.encode())
         image_type = image_strip.split('.')[1]
         upload_sizes = client.get_upload_sizes(global_user_email)
         upload_size = upload_sizes[image_name]
@@ -484,16 +491,21 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def download(self):
+        global global_process_string
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        file_name, _ = QFileDialog.getSaveFileName(
+        file_name, options = QFileDialog.getSaveFileName(
             self, "QFileDialog.getSaveFileName()",
-            "", "JPEG Files (*.jpg);; JPEG Files(*jpeg);; "
-                "TIFF Files(*.tif);; TIFF Files(*.tiff);; "
+            "", "JPEG Files(*.jpeg);; "
+                "TIFF Files(*.tiff);; "
                 "PNG Files(*.png)", options=options)
         if file_name:
-            print(file_name)
-            # place holder for saving file command
+            options = options.split('.')[-1]
+            options = options.strip(')')
+            img_buf = decode(global_process_string)
+            img_array = skimage.io.imread(img_buf)
+            plt.imsave(file_name + '.' + options,
+                       img_array)
 
     @pyqtSlot()
     def new_upload(self):

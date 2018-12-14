@@ -492,7 +492,7 @@ class App5(QMainWindow):
 
     @pyqtSlot()
     def download(self):
-        global global_process_string
+        global global_process_image
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         file_name, options = QFileDialog.getSaveFileName(
@@ -503,7 +503,7 @@ class App5(QMainWindow):
         if file_name:
             options = options.split('.')[-1]
             options = options.strip(')')
-            img_buf = decode(global_process_string)
+            img_buf = decode(global_process_image)
             img_array = skimage.io.imread(img_buf)
             plt.imsave(file_name + '.' + options,
                        img_array)

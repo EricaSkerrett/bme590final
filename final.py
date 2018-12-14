@@ -526,9 +526,15 @@ def image_processed_upload():
     processed_image, time_to_process = process_image(image_string,
                                                      process_type)
 
-    img = Image.fromarray(processed_image)  # , 'RGB')
-    buffer = io.BytesIO()
-    img.save(buffer, format='png')
+    format = image_no_location.split('.')[-1]
+    if format == "png":
+        img = Image.fromarray(processed_image)
+        buffer = io.BytesIO()
+        img.save(buffer, format='png')
+    else:
+        img = Image.fromarray(processed_image, 'RGB')
+        buffer = io.BytesIO()
+        img.save(buffer, format='jpeg')
     myimage = buffer.getvalue()
     bytes = base64.b64encode(myimage)
     processed_image = bytes.decode()  # basestring
